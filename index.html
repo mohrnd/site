@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohend Boubekeur – Cybersecurity & Networks Portfolio</title>
+    <!-- <link rel="icon" href="Assets/logo.png" type="image/png"> -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+        :root {
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --bg-dark: #0b0014;
+            --text-light: #f2e9ff;
+            --text-muted: #b69cd9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-light);
+            background: var(--bg-dark);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Background Effects */
+        .blob {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(160px);
+            opacity: 0.5;
+            z-index: 0;
+            animation: moveBlobs 25s infinite ease-in-out alternate;
+        }
+
+        .blob:nth-child(1) {
+            background: #a855f7;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .blob:nth-child(2) {
+            background: #7e22ce;
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+
+        @keyframes moveBlobs {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(100px, -80px) scale(1.2);
+            }
+
+            100% {
+                transform: translate(-80px, 100px) scale(1);
+            }
+        }
+
+        canvas#particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            padding: 0.5rem;
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .lang-btn.active {
+            background: var(--accent);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: var(--text-light);
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent);
+            animation: pulseGlow 4s infinite ease-in-out, fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                text-shadow: 0 0 15px var(--accent);
+            }
+
+            50% {
+                text-shadow: 0 0 30px var(--accent);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header p {
+            color: var(--text-muted);
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .contact-link {
+            color: var(--accent);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .contact-link:hover {
+            color: var(--text-light);
+            background: rgba(168, 85, 247, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        main {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            gap: 4rem;
+            padding-bottom: 8rem;
+        }
+
+        section {
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        section:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        section:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        section:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        section:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        section:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        section:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        section:nth-child(7) {
+            animation-delay: 0.7s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 0 35px rgba(168, 85, 247, 0.6);
+            border-color: rgba(168, 85, 247, 0.6);
+        }
+
+        ul.skills {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        ul.skills li {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-shadow: 0 0 5px rgba(168, 85, 247, 0.6);
+            transition: all 0.3s;
+            animation: popIn 0.4s ease-out both;
+        }
+
+        ul.skills li:hover {
+            background: rgba(168, 85, 247, 0.2);
+            transform: scale(1.05);
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        ul.skills li:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        ul.skills li:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        ul.skills li:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        ul.skills li:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        ul.skills li:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        ul.skills li:nth-child(6) {
+            animation-delay: 0.3s;
+        }
+
+        ul.skills li:nth-child(7) {
+            animation-delay: 0.35s;
+        }
+
+        ul.skills li:nth-child(8) {
+            animation-delay: 0.4s;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .project-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+        }
+
+        .project-card:hover::before {
+            left: 100%;
+        }
+
+        .timeline {
+            border-left: 2px solid rgba(168, 85, 247, 0.4);
+            margin-top: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .timeline-item {
+            margin-bottom: 2rem;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.65rem;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--accent);
+            transition: all 0.3s;
+        }
+
+        .timeline-item:hover::before {
+            transform: scale(1.5);
+            box-shadow: 0 0 25px var(--accent);
+        }
+
+        .timeline-item h3 {
+            color: var(--accent-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-item p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .timeline-item p:first-of-type {
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .experience-item {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(168, 85, 247, 0.05);
+            border-radius: 15px;
+            border-left: 3px solid var(--accent);
+            transition: all 0.3s;
+        }
+
+        .experience-item:hover {
+            background: rgba(168, 85, 247, 0.1);
+            transform: translateX(5px);
+        }
+
+        .experience-item h3 {
+            color: var(--accent-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .experience-item .date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .experience-item ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .experience-item ul li {
+            color: var(--text-light);
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .experience-item ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .btn {
+            display: inline-block;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: var(--accent);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding: 3rem 1rem;
+            border-top: 1px solid rgba(168, 85, 247, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .link-list {
+            display: flex;
+            align-items: center;
+            color: var(--accent);
+            text-decoration: none;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .link-list:hover {
+            color: var(--text-light);
+            background: rgba(168, 85, 247, 0.1);
+            border-color: rgba(168, 85, 247, 0.3);
+            transform: translateX(5px);
+        }
+
+        .link-list::before {
+            content: '→';
+            margin-right: 0.5rem;
+            transition: transform 0.3s;
+        }
+
+        .link-list:hover::before {
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .lang-toggle {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .contact-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+        }
+
+
+
+
+
+        /* Logo Styles */
+        .logo {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            width: 180px;
+            height: 80px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInLeft 0.6s ease-out, logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes logoFloat {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .logo:hover {
+            transform: scale(1.2) translateY(-5px);
+            filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.8));
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.4s;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .header-logo {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1.5rem;
+            animation: fadeInScale 0.8s ease-out, logoPulse 4s ease-in-out infinite;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes logoPulse {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
+                transform: scale(1);
+            }
+
+            50% {
+                filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.9));
+                transform: scale(1.05);
+            }
+        }
+
+        .header-logo:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 40px rgba(168, 85, 247, 1));
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.4s;
+        }
+
+        .header-logo:hover img {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                width: 60px;
+                height: 60px;
+                top: 1rem;
+                left: 1rem;
+            }
+
+            .header-logo {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+
+
+
+
+        .contact-link {
+            color: var(--accent);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .contact-link:hover {
+            color: var(--text-light);
+            background: rgba(168, 85, 247, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .contact-link svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s;
+        }
+
+        .contact-link:hover svg {
+            transform: scale(1.2);
+        }
+
+
+
+
+        section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        section h2 svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 8px var(--accent));
+            transition: transform 0.3s;
+        }
+
+        .card:hover h2 svg {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+
+.header-subtitle {
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    margin-top: 1rem;
+    letter-spacing: 0.5px;
+    animation: fadeInUp 1s ease-out 0.5s both, glowText 4s ease-in-out infinite;
+}
+
+/* Reuse fadeInUp keyframes if already defined, otherwise: */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glowText {
+    0%, 100% { text-shadow: 0 0 8px var(--accent-light), 0 0 12px rgba(168,85,247,0.5); }
+    50% { text-shadow: 0 0 18px var(--accent-light), 0 0 28px rgba(168,85,247,0.7); }
+}
+    </style>
+</head>
+
+<body>
+    <!-- Background Effects -->
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <canvas id="particles"></canvas>
+
+    <a href="#" class="logo">
+        <img src="Assets/logo.png" alt="Logo">
+    </a>
+
+    <!-- Language Toggle -->
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="switchLang('en')">EN</button>
+        <button class="lang-btn" onclick="switchLang('fr')">FR</button>
+    </div>
+
+    <!-- Header -->
+    <header>
+
+        <h1 data-en="Mohend Boubekeur" data-fr="Mohend Boubekeur">Mohend Boubekeur</h1>
+<p class="header-subtitle" data-en="Master 1 Cybersecurity & Networks Student at UBO • Aspiring Systems Architect" 
+   data-fr="Étudiant en Master 1 Cybersécurité & Réseaux à l'UBO • Futur Architecte Systèmes">
+   Master 1 Cybersecurity & Networks Student at UBO • Aspiring Systems Architect
+</p>
+        <div class="contact-links">
+            <a href="mailto:mohend@boubekeur.work" class="contact-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                mohend@boubekeur.work
+            </a>
+            <a href="https://www.linkedin.com/in/boubekeur-mohend/" class="contact-link">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+                LinkedIn
+            </a>
+            <a href="https://github.com/mohrnd" class="contact-link">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                Github
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section id="about" class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span data-en="About Me" data-fr="À Propos">About Me</span>
+            </h2>
+<p>
+    <span data-en="Passionate about cybersecurity and networks, I am a Master 1 student at UBO, always curious to learn new technologies and discover innovative solutions. I enjoy challenging environments where I can improve my skills and explore ways to design secure, efficient, and scalable infrastructures. Outside of tech, I love mountain biking, tinkering, reading, video editing, and competing in online games. Check out my latest clip here: " 
+          data-fr="Passionné par la cybersécurité et les réseaux, je suis étudiant en Master 1 à l'UBO, toujours curieux d'apprendre de nouvelles technologies et de découvrir des solutions innovantes. J'apprécie les environnements stimulants où je peux développer mes compétences et explorer des moyens de concevoir des infrastructures sécurisées, efficaces et évolutives. En dehors de la tech, j'aime le VTT, le bricolage, la lecture, le montage vidéo et les jeux en ligne compétitifs. Découvrez mon dernier clip ici : ">
+        Passionate about cybersecurity and networks, I am a Master 1 student at UBO, always curious to learn new technologies and discover innovative solutions. I enjoy challenging environments where I can improve my skills and explore ways to design secure, efficient, and scalable infrastructures. Outside of tech, I love mountain biking, tinkering, reading, video editing, and competing in online games. Check out my latest clip here: 
+    </span>
+    <a href='https://youtu.be/pW7puyFhwf0' target='_blank' class="contact-link" style="display: inline; padding: 0;">watch it!</a>
+</p>
+        </section>
+
+        <section id="skills" class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                <span data-en="Technical Skills" data-fr="Compétences Techniques">Technical Skills</span>
+            </h2>
+            <ul class="skills">
+                <li>Python • C/C++ • PHP</li>
+                <li>SQL • Bash</li>
+                <li>AWS • Docker • Kubernetes</li>
+                <li>VMware • Proxmox • Ansible</li>
+                <li>Cisco • Alcatel-Lucent</li>
+                <li>VLAN • OSPF • BGP • MPLS</li>
+                <li>Windows Server • Linux (Debian)</li>
+                <li>Wazuh • Kaspersky • PRTG</li>
+                <li>DHCP • DNS • LDAP</li>
+                <li>Active Directory</li>
+            </ul>
+        </section>
+
+        <section id="education" class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+                <span data-en="Education" data-fr="Formation">Education</span>
+            </h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3 data-en="Master's in Cybersecurity, Networks and Telecommunications"
+                        data-fr="Master Cybersécurité, Réseaux et Télécommunications">
+                        Master's in Cybersecurity, Networks and Telecommunications
+                    </h3>
+                    <p data-en="Université de Bretagne Occidentale, Brest, France — 2025-2027 (Expected)"
+                        data-fr="Université de Bretagne Occidentale, Brest, France — 2025-2027 (En cours)">
+                        Université de Bretagne Occidentale, Brest, France — 2025-2027 (Expected)
+                    </p>
+
+                </div>
+                <div class="timeline-item">
+                    <h3 data-en="Bachelor's in Networks and Telecommunications"
+                        data-fr="Licence Réseaux et Télécommunications">
+                        Bachelor's in Networks and Telecommunications
+                    </h3>
+                    <p data-en="Université de Bretagne Occidentale, Brest, France — 2024-2025"
+                        data-fr="Université de Bretagne Occidentale, Brest, France — 2024-2025">
+                        Université de Bretagne Occidentale, Brest, France — 2024-2025
+                    </p>
+
+                    </p>
+                    <p data-en="Top of class, Highest Honors" data-fr="Major de promotion, mention Très bien">
+                        Top of class, Highest Honors
+                    </p>
+                </div>
+                <div class="timeline-item">
+                    <h3 data-en="Bachelor's in Computer Science, Networks and Telecommunications"
+                        data-fr="Licence en Informatique, spécialité Réseaux et Télécommunications">
+                        Bachelor's in Computer Science, Networks and Telecommunications
+                    </h3>
+                    <p data-en="USTHB, Bab Ezzouar, Algeria — 2021-2024"
+                        data-fr="USTHB, Bab Ezzouar, Algérie — 2021-2024">
+                        USTHB, Bab Ezzouar, Algeria — 2021-2024
+
+                    <p data-en="Top of class, High Honors" data-fr="Major de promotion, mention Bien">
+                        Top of class, High Honors
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                <span data-en="Professional Experience" data-fr="Expérience Professionnelle">Professional
+                    Experience</span>
+            </h2>
+            <div class="experience-item">
+                <h3 data-en="Intrusion/Anomaly Detection with Artificial Intelligence (Internship)"
+                    data-fr="Détection d'Intrusions/Anomalies par Intelligence Artificielle (Stage)">
+                    Intrusion/Anomaly Detection with Artificial Intelligence (Internship)
+                </h3>
+                <div class="date"
+                    data-en="Université de Bretagne Occidentale, Brest, France — July-August 2025 (2 months)"
+                    data-fr="Université de Bretagne Occidentale, Brest, France — Juillet-Août 2025 (2 mois)">
+                    Université de Bretagne Occidentale, Brest, France — July-August 2025 (2 months)
+                </div>
+                <ul>
+                    <li data-en="Developed a C++ script for real-time automation data export (30ms interval)"
+                        data-fr="Développement d'un script en C++ d'exportation de données d'automate en temps réel (30 ms d'intervalle)">
+                        Developed a C++ script for real-time automation data export (30ms interval)
+                    </li>
+                    <li data-en="Created an anomaly detection model with 98% accuracy"
+                        data-fr="Création d'un modèle de détection d'anomalies d'une précision de 98%">
+                        Created an anomaly detection model with 98% accuracy
+                    </li>
+                </ul>
+            </div>
+            <div class="experience-item">
+                <h3 data-en="System Administrator (Internship)" data-fr="Administrateur Systèmes (Stage)">
+                    System Administrator (Internship)
+                </h3>
+                <div class="date"
+                    data-en="Algérie Télécom Satellite (ATS), Algiers, Algeria — July-August 2023 (2 months)"
+                    data-fr="Algérie Télécom Satellite (ATS), Alger, Algérie — Juillet-Août 2023 (2 mois)">
+                    Algérie Télécom Satellite (ATS), Algiers, Algeria — July-August 2023 (2 months)
+                </div>
+                <ul>
+                    <li data-en="Strengthened security and monitoring of Windows and Linux systems using Wazuh and Ansible"
+                        data-fr="Renforcement de la sécurité et surveillance des systèmes informatiques Windows et Linux en utilisant Wazuh et Ansible">
+                        Strengthened security and monitoring of Windows and Linux systems using Wazuh and Ansible
+                    </li>
+                    <li data-en="Windows Server user administration and ticket management"
+                        data-fr="Administration des utilisateurs sur Windows Server/Gestion de tickets">
+                        Windows Server user administration and ticket management
+                    </li>
+                    <li data-en="Deployment and administration of Kubernetes clusters"
+                        data-fr="Déploiement et administration de clusters Kubernetes">
+                        Deployment and administration of Kubernetes clusters
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+ <section id="projects" class="card">
+    <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        <span data-en="Projects" data-fr="Projets">Projects</span>
+    </h2>
+    <div class="projects-grid">
+        <div class="card project-card">
+            <h3 data-en="Cloud Deployments (AWS)" data-fr="Déploiements Cloud (AWS)">Cloud Deployments (AWS)</h3>
+            <p data-en="Secure web application with DynamoDB, EC2, RDS, S3, WAF, IAM and auto-scaling. \n Automated workflow for Active Directory user creation and WorkMail accounts via API Gateway, Lambda, SES and WorkMail." 
+               data-fr="Application web sécurisée avec DynamoDB, EC2, RDS, S3, WAF, IAM et auto-scaling. Workflow automatisé de création d'utilisateurs Active Directory et de comptes WorkMail via API Gateway, Lambda, SES et WorkMail.">
+                Secure web application with DynamoDB, EC2, RDS, S3, WAF, IAM and auto-scaling. Automated workflow for Active Directory user creation and WorkMail accounts via API Gateway, Lambda, SES and WorkMail.
+            </p>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                <a href="https://www.linkedin.com/feed/update/urn:li:activity:7280145757830070273/" target="_blank" class="btn"><span data-en="Web App" data-fr="App Web">Web App</span></a>
+                <a href="https://www.linkedin.com/feed/update/urn:li:activity:7278098791864455168/" target="_blank" class="btn"><span data-en="WorkMail Flow" data-fr="Flux WorkMail">WorkMail Flow</span></a>
+            </div>
+        </div>
+        
+        <div class="card project-card">
+            <h3 data-en="REMT - Remote Execution and Monitoring Toolkit" data-fr="REMT - Logiciel de Gestion à Distance">REMT - Remote Execution and Monitoring Toolkit</h3>
+            <p data-en="Rocky Linux server administration software in Python (15k lines), integrating SSH, file transfer, logs, task scheduling, script/password management and SNMP monitoring." 
+               data-fr="Logiciel d'administration de serveurs Rocky Linux en Python (15k lignes), intégrant SSH, transfert de fichiers, logs, planification de tâches, gestion de scripts/mots de passe et monitoring SNMP.">
+                Rocky Linux server administration software in Python (15k lines), integrating SSH, file transfer, logs, task scheduling, script/password management and SNMP monitoring.
+            </p>
+            <a href="https://github.com/mohrnd/REMT" target="_blank" class="btn"><span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
+        </div>
+        
+        <div class="card project-card">
+            <h3 data-en="DHCP Configuration Automation Tool" data-fr="Outil d'Automatisation de la Configuration DHCP">DHCP Configuration Automation Tool</h3>
+            <p data-en="C++ tool for automatically configuring a DHCP server remotely via SSH." 
+               data-fr="Outil en C++ permettant de configurer automatiquement un serveur DHCP à distance via SSH.">
+                C++ tool for automatically configuring a DHCP server remotely via SSH.
+            </p>
+            <a href="https://github.com/mohrnd/DHCP-configurator" target="_blank" class="btn"><span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
+        </div>
+        
+        <div class="card project-card">
+            <h3 data-en="Tram Subscription Management Portal" data-fr="Portail de Gestion des Abonnements au Tramway">Tram Subscription Management Portal</h3>
+            <p data-en="Subscription management system (purchase, renewal) in PHP/MySQL with intuitive interface and multi-role management (customers, agents, administrators)." 
+               data-fr="Système de gestion d'abonnements (achat, renouvellement) en PHP/MySQL avec interface intuitive et gestion multi-rôles (clients, agents, administrateurs).">
+                Subscription management system (purchase, renewal) in PHP/MySQL with intuitive interface and multi-role management (customers, agents, administrators).
+            </p>
+            <a href="https://github.com/mohrnd/Subscription-Manager-web-application" target="_blank" class="btn"><span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
+        </div>
+    </div>
+</section>
+
+        <section id="certifications" class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="7"></circle>
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                </svg>
+                <span data-en="Certifications" data-fr="Certifications">Certifications</span>
+            </h2>
+            <ul class="skills">
+                <li>Alcatel-Lucent ACFE LAN, WLAN, Omnivista Cirrus 10, 2260/2360</li>
+                <li>AWS Technical Essentials</li>
+                <li>Network Automation - Arista Networks</li>
+                <li>Docker Foundations</li>
+                <li>Cybersecurity Operations - ICT Towers</li>
+                <li data-en="English: IELTS (C1), CLES B2" data-fr="Anglais: IELTS (C1), CLES B2">English: IELTS (C1), CLES B2</li>
+                <li data-en="French: TCF (C1)" data-fr="Français: TCF (C1)">French: TCF (C1)</li>
+            </ul>
+        </section>
+
+        <section id="cv" class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span data-en="Download CV" data-fr="Télécharger le CV">Download CV</span>
+            </h2>
+            <a href="Assets/CV Mohend BOUBEKEUR.pdf" class="btn"><span data-en="View My Full CV" data-fr="Voir mon CV complet">View My Full
+                    CV</span></a>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2025 Mohend Boubekeur. All rights reserved.
+    </footer>
+
+    <script>
+        function switchLang(lang) {
+            // Toggle active class
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+            });
+
+            // Switch all elements with data-en / data-fr
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = (lang === 'en') ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+            });
+        }
+
+        // Particle animation
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2 + 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(168, 85, 247, 0.6)';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // Draw connections
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+
+</html>
