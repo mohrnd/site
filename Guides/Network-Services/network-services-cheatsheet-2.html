@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Services Cheatsheet - Mohend Boubekeur</title>
+    <link rel="icon" href="/Assets/bimi-logo.svg" type="image/svg+xml">
+    <meta name="description" content="Comprehensive network services configuration guide covering DHCP, DNS, LDAP, SNMP, SSH, Apache, Samba, FTP, and NFS.">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
+        :root {
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-dark: #7e22ce;
+            --bg-dark: #0b0014;
+            --text-light: #f2e9ff;
+            --text-muted: #b69cd9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-light);
+            background: var(--bg-dark);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .blob {
+            position: fixed;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            filter: blur(180px);
+            opacity: 0.6;
+            z-index: 0;
+            animation: moveBlobs 30s infinite ease-in-out alternate;
+        }
+
+        .blob:nth-child(1) {
+            background: radial-gradient(circle, #a855f7 0%, #7e22ce 100%);
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .blob:nth-child(2) {
+            background: radial-gradient(circle, #7e22ce 0%, #5b21b6 100%);
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 7s;
+        }
+
+        @keyframes moveBlobs {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            33% {
+                transform: translate(120px, -100px) scale(1.3) rotate(120deg);
+            }
+            66% {
+                transform: translate(-100px, 80px) scale(0.9) rotate(240deg);
+            }
+            100% {
+                transform: translate(50px, -50px) scale(1.1) rotate(360deg);
+            }
+        }
+
+        canvas#particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .logo {
+            position: fixed;
+            top: 1rem;
+            left: 1.5rem;
+            z-index: 1000;
+            width: 180px;
+            height: 80px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 5px 15px rgba(168, 85, 247, 0.3));
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logo:hover {
+            transform: scale(1.15) translateY(-8px) rotate(2deg);
+            filter: drop-shadow(0 8px 30px rgba(168, 85, 247, 0.6));
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            padding: 0.85rem 1.75rem;
+            backdrop-filter: blur(20px);
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        .back-btn:hover {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.4s;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-5px);
+        }
+
+        header {
+            position: relative;
+            text-align: center;
+            padding: 8rem 2rem 2rem;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, white 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulseGlow 5s infinite ease-in-out, fadeInDown 1s ease-out;
+            position: relative;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 35px rgba(168, 85, 247, 0.8));
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quick-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .nav-link {
+            background: rgba(168, 85, 247, 0.1);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 25px;
+            padding: 0.7rem 1.4rem;
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(168, 85, 247, 0.4);
+        }
+
+        main {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 8rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            animation: fadeInScale 0.8s ease-out both;
+            scroll-margin-top: 100px;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(168, 85, 247, 0.25);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(168, 85, 247, 0.3);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2 svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            stroke: var(--accent);
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+
+        h3 {
+            color: var(--accent-light);
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: var(--accent-light);
+            font-size: 1.1rem;
+            margin: 1.5rem 0 1rem;
+            font-weight: 600;
+        }
+
+        p, li {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        code {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-light);
+            display: block;
+            line-height: 1.6;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        ul li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        th {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .note {
+            background: rgba(168, 85, 247, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .note p {
+            margin: 0;
+        }
+
+        .content-image {
+            width: 100%;
+            max-width: 900px;
+            height: auto;
+            border-radius: 15px;
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            margin: 1.5rem auto;
+            display: block;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .content-image:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 50px rgba(168, 85, 247, 0.5);
+            border-color: var(--accent);
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            padding: 3rem 1rem;
+            border-top: 2px solid rgba(168, 85, 247, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .top-nav {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .logo {
+                width: 70px;
+                height: 70px;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            .quick-nav {
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .content-image {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <canvas id="particles"></canvas>
+
+    <a href="index.html" class="logo">
+        <img src="Assets/logo.png" alt="Logo">
+    </a>
+
+    <div class="top-nav">
+        <a href="index.html" class="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Home
+        </a>
+    </div>
+
+    <header>
+        <h1>Network Services</h1>
+        <p class="header-subtitle">Comprehensive Configuration Guide & Cheatsheet</p>
+        
+        <nav class="quick-nav">
+            <a href="#notes" class="nav-link">Quick Notes</a>
+            <a href="#dhcp" class="nav-link">DHCP</a>
+            <a href="#dns" class="nav-link">DNS</a>
+            <a href="#ldap" class="nav-link">LDAP</a>
+            <a href="#snmp" class="nav-link">SNMP</a>
+            <a href="#iptables" class="nav-link">Iptables</a>
+            <a href="#ssh" class="nav-link">SSH</a>
+            <a href="#apache" class="nav-link">Apache</a>
+            <a href="#samba" class="nav-link">Samba</a>
+            <a href="#vsftpd" class="nav-link">vsftpd</a>
+            <a href="#nfs" class="nav-link">NFS</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="section" id="notes">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    Quick Notes
+                </h2>
+                
+                <ul>
+                    <li>Radvd splits a MAC address into 2 and inserts <code>ff:fe</code> in the middle</li>
+                    <li>Globally routable prefixes are of type <code>2000::/3</code> (Global Unicast)</li>
+                    <li><strong>Private IPv4 Ranges:</strong>
+                        <ul>
+                            <li><code>10.0.0.0 - 10.255.255.255</code> (10.0.0.0/8)</li>
+                            <li><code>172.16.0.0 - 172.31.255.255</code> (172.16.0.0/12)</li>
+                            <li><code>192.168.0.0 - 192.168.255.255</code> (192.168.0.0/16)</li>
+                        </ul>
+                    </li>
+                    <li><strong>no spoof:</strong> Prevents hostname spoofing by ensuring forward and reverse DNS lookups match</li>
+                </ul>
+
+                <h3>SSH Port Forwarding</h3>
+                <p><strong>-L: Local port forwarding</strong> - Forwards a local port to a remote service.</p>
+                <pre><code>ssh -L 8080:remote-server.com:80 user@remote-host</code></pre>
+                
+                <p><strong>-R: Remote port forwarding</strong> - Forwards a remote port to a local service.</p>
+                <pre><code>ssh -R 9090:localhost:80 user@remote-host</code></pre>
+
+                <h3>DNS Resolution Types</h3>
+                <p><strong>Recursive:</strong> The DNS server does all the work.</p>
+                <p><strong>Iterative:</strong> The client receives hints (other servers to contact) and handles it themselves.</p>
+            </div>
+        </div>
+
+        <div class="section" id="dhcp">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    DHCP Configuration
+                </h2>
+
+                <h3>Server Setup</h3>
+                <ol>
+                    <li>Modify <code>/etc/dhcp/dhcpd.conf</code> and <code>/etc/dhcp/dhcpd6.conf</code></li>
+                    <li>Configure static IP and hostname on the server</li>
+                    <li>Add listening interfaces to <code>/etc/default/isc-dhcp-server</code></li>
+                    <li>Restart the service: <code>systemctl restart isc-dhcp-server</code></li>
+                </ol>
+
+                <div class="note">
+                    <p><strong>Note:</strong> For fixed addresses, add the <code>subnet</code> line and then add the fixed address using <code>host hostname</code></p>
+                </div>
+
+                <h3>Client Configuration</h3>
+                <p>Configure the client to use DHCP for network settings.</p>
+                
+                <img src="img/pasted_image001001.png" alt="DHCP Client Configuration" class="content-image">
+
+                <h3>IPv6 with Radvd</h3>
+                <p>Check <code>man radvd.conf</code> (EXAMPLES section). Set <code>SendAdvert on</code> in the configuration file.</p>
+            </div>
+        </div>
+
+        <div class="section" id="dns">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20"/>
+                    </svg>
+                    DNS Configuration
+                </h2>
+
+                <h3>Zone Files</h3>
+                <p>Template for <code>&lt;domain&gt;.hosts</code> file (use <code>/etc/bind/db.255</code> as reference)</p>
+
+                <h4>Forward Zone</h4>
+                <img src="img/pasted_image003001.png" alt="DNS Forward Zone Configuration" class="content-image">
+                
+                <pre><code>$TTL 86400
+@   IN  SOA ns1.domain.com. admin.domain.com. (
+        2024010101  ; Serial
+        3600        ; Refresh
+        1800        ; Retry
+        604800      ; Expire
+        86400 )     ; Minimum TTL
+
+    IN  NS  ns1.domain.com.
+ns1 IN  A   192.168.21.1
+www IN  A   192.168.21.10</code></pre>
+
+                <h4>Reverse Zone</h4>
+                <p>Create <code>&lt;domain&gt;.rev</code> file with PTR records:</p>
+                
+                <img src="img/pasted_image004001.png" alt="DNS Reverse Zone Configuration" class="content-image">
+                
+                <pre><code>$TTL 86400
+@   IN  SOA ns1.domain.com. admin.domain.com. (
+        2024010101  ; Serial
+        3600        ; Refresh
+        1800        ; Retry
+        604800      ; Expire
+        86400 )     ; Minimum TTL
+
+    IN  NS  ns1.domain.com.
+1   IN  PTR ns1.domain.com.
+10  IN  PTR www.domain.com.</code></pre>
+
+                <div class="note">
+                    <p><strong>Important:</strong> Move zone files to <code>/var/cache/bind</code></p>
+                </div>
+
+                <h3>Zone Configuration</h3>
+                <p>Edit <code>/etc/bind/named.conf.local</code> and create zones:</p>
+
+                <pre><code>// Domain zone
+zone "str.tp" {
+    type master;
+    file "str.tp.hosts";
+};
+
+// IPv4 reverse zone
+zone "21.168.192.in-addr.arpa" {
+    type master;
+    file "str.tp.rev";
+};
+
+// IPv6 reverse zone
+zone "4.0.0.2.3.0.0.2.2.0.0.2.1.0.0.2.ip6.arpa" {
+    type master;
+    file "str.tp.rev6";
+};</code></pre>
+
+                <h3>Resolver Configuration</h3>
+                <p>Check <code>/etc/resolv.conf</code> on both client and server:</p>
+                <pre><code>domain domain-name
+nameserver ip-of-dns-server</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="ldap">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="8.5" cy="7" r="4"/>
+                        <path d="M20 8v6M23 11h-6"/>
+                    </svg>
+                    LDAP Configuration
+                </h2>
+
+                <h3>Create a Domain</h3>
+                <p>Generate a hashed password:</p>
+                <pre><code>slappasswd -h {MD5} -s password > /home/user/database.ldif</code></pre>
+
+                <p>Create database configuration file:</p>
+                <pre><code>dn: olcDatabase={2}mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: {2}mdb
+olcSuffix: dc=serveur,dc=ltr,dc=tp
+olcDbDirectory: /var/lib/ldap
+olcRootDN: cn=admin,dc=serveur,dc=ltr,dc=tp
+olcRootPW: {MD5}yourhashedpassword
+olcAccess: {0}to attrs=userPassword by self write by anonymous auth by dn="cn=admin,dc=serveur,dc=ltr,dc=tp" write by * none
+olcAccess: {1}to * by * read</code></pre>
+
+                <p>Apply configuration:</p>
+                <pre><code>ldapadd -Y EXTERNAL -H ldapi:/// -f /home/user/database.ldif</code></pre>
+
+                <p>Verify:</p>
+                <pre><code>ldapwhoami -x -D "cn=admin,dc=serveur,dc=ltr,dc=tp" -w yourpassword</code></pre>
+
+                <h3>Creating Entries</h3>
+                
+                <h4>Root Domain</h4>
+                <pre><code>dn: dc=ltr,dc=tp
+objectClass: top
+objectClass: domain
+dc: ltr</code></pre>
+
+                <h4>Organizational Unit (OU)</h4>
+                <pre><code>dn: ou=people,dc=example,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: people</code></pre>
+
+                <h4>Group</h4>
+                <pre><code>dn: cn=staff,ou=people,dc=example,dc=com
+objectClass: top
+objectClass: posixGroup
+cn: staff
+gidNumber: 1001</code></pre>
+
+                <h4>User</h4>
+                <pre><code>dn: uid=john.doe,ou=people,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: john.doe
+sn: Doe
+givenName: John
+cn: John Doe
+uidNumber: 1000
+gidNumber: 1001
+userPassword: {SSHA}encryptedPasswordHere
+homeDirectory: /home/john.doe
+loginShell: /bin/bash
+mail: john.doe@example.com</code></pre>
+
+                <p>Add entries:</p>
+                <pre><code>ldapadd -x -D "cn=admin,dc=example,dc=com" -w password -f populate.ldif</code></pre>
+
+                <p>Verify creation:</p>
+                <pre><code>ldapsearch -x -b "dc=example,dc=com"</code></pre>
+
+                <h3>Modifying Data</h3>
+                
+                <h4>Replace Attribute</h4>
+                <pre><code>dn: uid=john.doe,ou=people,dc=example,dc=com
+changetype: modify
+replace: mail
+mail: john.newemail@example.com</code></pre>
+
+                <h4>Delete Entry</h4>
+                <pre><code>dn: uid=john.doe,ou=people,dc=example,dc=com
+changetype: delete</code></pre>
+
+                <h4>Add Attribute</h4>
+                <pre><code>dn: uid=john.doe,ou=people,dc=example,dc=com
+changetype: modify
+add: mail
+mail: john.newemail@example.com</code></pre>
+
+                <p>Apply modifications:</p>
+                <pre><code>ldapmodify -x -D "cn=admin,dc=ctr,dc=tp" -w Pa$w0rd -f modify.ldif</code></pre>
+
+                <h3>Access Control (ACL)</h3>
+                <p>Structure: <code>olcAccess: {0}to &lt;target&gt; by &lt;users&gt; &lt;permission&gt;</code></p>
+
+                <pre><code>dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: {0}to attrs=userPassword by self write by anonymous auth by dn="cn=admin,dc=serveur,dc=ltr,dc=tp" write by * none
+-
+add: olcAccess
+olcAccess: {1}to * by * read</code></pre>
+
+                <p>Apply ACL:</p>
+                <pre><code>ldapmodify -Y EXTERNAL -H ldapi:/// -f acl.ldif</code></pre>
+
+                <h4>Scope Options</h4>
+                <table>
+                    <tr>
+                        <th>Scope</th>
+                        <th>Matches</th>
+                        <th>Includes DN?</th>
+                        <th>Includes Sublevels?</th>
+                    </tr>
+                    <tr>
+                        <td><code>base</code></td>
+                        <td>Only exact DN</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td><code>one</code></td>
+                        <td>Direct children</td>
+                        <td>No</td>
+                        <td>No (1 level only)</td>
+                    </tr>
+                    <tr>
+                        <td><code>children</code></td>
+                        <td>Direct children</td>
+                        <td>No</td>
+                        <td>No (1 level only)</td>
+                    </tr>
+                    <tr>
+                        <td><code>subtree</code></td>
+                        <td>DN + all descendants</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                    </tr>
+                </table>
+
+                <h3>Client Login Configuration</h3>
+                <ol>
+                    <li>Install packages: <code>apt-get install libnss-ldap nss-updatedb libnss-db</code></li>
+                    <li>Configure <code>/etc/nslcd.conf</code>:
+                        <pre><code>uri ldap://ldap.example.com/
+base dc=example,dc=com
+binddn cn=admin,dc=example,dc=com
+bindpw yourpassword</code></pre>
+                    </li>
+                    <li>Run <code>sudo pam-auth-update</code> and enable:
+                        <ul>
+                            <li>Unix authentication</li>
+                            <li>LDAP Authentication</li>
+                            <li>Create home directory on login</li>
+                        </ul>
+                    </li>
+                    <li>Edit <code>/etc/nsswitch.conf</code>:
+                        <pre><code>passwd: files ldap
+group: files ldap
+shadow: files ldap</code></pre>
+                    </li>
+                    <li>Restart nslcd: <code>sudo systemctl restart nslcd</code></li>
+                    <li>Test:
+                        <pre><code>getent passwd john.doe
+getent group staff</code></pre>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section" id="snmp">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                    SNMP Configuration
+                </h2>
+
+                <h3>SNMP Commands</h3>
+
+                <h4>snmptranslate</h4>
+                <p>Translate between OID numbers and names.</p>
+                <pre><code># Name to OID
+snmptranslate -On IF-MIB::ifDescr
+
+# OID to name
+snmptranslate -IR 1.3.6.1.2.1.1.3.0
+
+# Get numerical OID
+snmptranslate -Ib interfaces</code></pre>
+
+                <h4>snmpget</h4>
+                <p>Request a specific OID from a device.</p>
+                <pre><code># SNMPv2c
+snmpget -v 2c -c public 192.168.1.1 IF-MIB::ifDescr.1
+
+# SNMPv3
+snmpget -v 3 -u myUser -l authPriv -a MD5 -A myAuthPass -x DES -X myPrivPass 192.168.1.1 IF-MIB::ifDescr.1</code></pre>
+
+                <h4>snmpgetnext</h4>
+                <p>Get the next object after an OID (iterate through SNMP tree).</p>
+                <pre><code>snmpgetnext -v 2c -c public 192.168.1.1 IF-MIB::ifDescr.1</code></pre>
+
+                <h4>snmpbulkget</h4>
+                <p>Efficient multiple data retrieval (SNMPv2c and SNMPv3 only).</p>
+                <pre><code>snmpbulkget -v 2c -c public -Cn0 -Cr10 192.168.1.1 IF-MIB::ifDescr</code></pre>
+                <table>
+                    <tr>
+                        <th>Flag</th>
+                        <th>Meaning</th>
+                    </tr>
+                    <tr>
+                        <td><code>-Cn0</code></td>
+                        <td>Get 0 non-repeaters (all OIDs will repeat)</td>
+                    </tr>
+                    <tr>
+                        <td><code>-Cr10</code></td>
+                        <td>Get 10 values for each OID</td>
+                    </tr>
+                </table>
+
+                <h4>snmptable</h4>
+                <p>Display entire SNMP table in readable format.</p>
+                <pre><code>snmptable -v 2c -c public 192.168.1.1 IF-MIB::ifTable</code></pre>
+
+                <h4>snmpset</h4>
+                <p>Modify SNMP data on remote agent.</p>
+                <pre><code>snmpset -v 2c -c private 192.168.1.1 IF-MIB::ifAdminStatus.2 i 2</code></pre>
+                <p><strong>Data Types:</strong> i=integer, u=unsigned, s=string, x=hex, a=IP address, t=timeticks, o=OID</p>
+
+                <h4>snmpwalk</h4>
+                <p>Walk through an entire branch.</p>
+                <pre><code>snmpwalk -v 2c -c public 192.168.1.1 IF-MIB::ifDescr</code></pre>
+
+                <h3>SNMP Traps</h3>
+
+                <h4>Agent Configuration</h4>
+                <p>File: <code>/etc/snmp/snmpd.conf</code></p>
+                <pre><code># Send SNMPv1 traps
+trapsink localhost mycom
+
+# Send SNMPv2c traps
+trap2sink localhost mycom
+
+# Enable authentication failure traps
+authtrapenable 1</code></pre>
+
+                <h4>Manager Configuration</h4>
+                <p>File: <code>/etc/snmp/snmptrapd.conf</code></p>
+                <pre><code># Accept traps and log them
+authCommunity log mycom</code></pre>
+
+                <p>Restart services:</p>
+                <pre><code>sudo systemctl restart snmpd</code></pre>
+
+                <p>Launch trap daemon:</p>
+                <pre><code>sudo snmptrapd -f -Le</code></pre>
+
+                <p>Test trap with wrong community:</p>
+                <pre><code>snmpwalk -v2c -c wrongcom 192.168.0.1 -IR udpTable
+snmptrap -v2c -c mycom 192.168.0.2 "" ucdStart sysContact.0 s "Hello"</code></pre>
+
+                <h3>View Access Control</h3>
+                <p>File: <code>/etc/snmp/snmpd.conf</code></p>
+                <pre><code>view systemonly included .1.3.6.1.2.1.1
+view systemonly included .1.3.6.1.2.1.25.1
+
+rocommunity public default -V systemonly
+rocommunity6 public default -V systemonly</code></pre>
+
+                <h3>SNMPv3 User Creation</h3>
+                <p>File: <code>/var/lib/snmp/snmpd.conf</code></p>
+                <pre><code>createUser authPrivUser SHA-512 myauthpassphrase AES myprivpassphrase</code></pre>
+
+                <p>Grant access (in <code>/etc/snmp/snmpd.conf</code>):</p>
+                <pre><code>rouser authPrivUser authPriv -V systemonly</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="iptables">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v6m0 6v6"/>
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    Iptables Firewall
+                </h2>
+
+                <h3>Tables and Chains</h3>
+
+                <h4>Filter Table (default)</h4>
+                <ul>
+                    <li><strong>INPUT:</strong> Controls packets destined for local system</li>
+                    <li><strong>OUTPUT:</strong> Controls packets generated by local system</li>
+                    <li><strong>FORWARD:</strong> Controls packets routed through system</li>
+                </ul>
+
+                <h4>NAT Table</h4>
+                <ul>
+                    <li><strong>PREROUTING:</strong> DNAT (address translation towards inside)</li>
+                    <li><strong>POSTROUTING:</strong> SNAT (address translation towards outside)</li>
+                    <li><strong>OUTPUT:</strong> Alters locally generated packets</li>
+                </ul>
+
+                <h4>Mangle Table</h4>
+                <p>Used for packet tagging for QoS. Supports all chains from Filter and NAT tables.</p>
+
+                <h3>Targets (-j)</h3>
+                <ul>
+                    <li><strong>ACCEPT:</strong> Allows the packet</li>
+                    <li><strong>DROP:</strong> Silently drops the packet</li>
+                    <li><strong>REJECT:</strong> Drops and sends error response</li>
+                    <li><strong>LOG:</strong> Logs packet details</li>
+                    <li><strong>MASQUERADE:</strong> NAT for dynamic IPs (POSTROUTING only)</li>
+                    <li><strong>SNAT:</strong> Source NAT (POSTROUTING only)</li>
+                    <li><strong>DNAT:</strong> Destination NAT (PREROUTING only)</li>
+                    <li><strong>RETURN:</strong> Passes to previous rule</li>
+                </ul>
+
+                <h3>Common Commands</h3>
+
+                <h4>Listing Rules</h4>
+                <pre><code>iptables -L -v -n              # List all rules
+iptables -t nat -L -v -n       # List NAT table rules</code></pre>
+
+                <h4>Adding Rules (-A)</h4>
+                <pre><code>iptables -A INPUT -p tcp --dport 22 -j ACCEPT    # Allow SSH
+iptables -A INPUT -p icmp -j DROP                # Block ICMP</code></pre>
+
+                <h4>Deleting Rules (-D)</h4>
+                <pre><code>iptables -D INPUT -p icmp -j DROP</code></pre>
+
+                <h4>Policies (-P)</h4>
+                <pre><code>iptables -P INPUT DROP         # Drop all incoming by default
+iptables -P FORWARD DROP       # Drop forwarded by default
+iptables -P OUTPUT ACCEPT      # Allow outgoing by default</code></pre>
+
+                <h4>Custom Chains</h4>
+                <pre><code>iptables -N CUSTOM_CHAIN       # Create custom chain
+iptables -X CUSTOM_CHAIN       # Delete custom chain</code></pre>
+
+                <h4>Flush Rules</h4>
+                <pre><code>iptables -F                    # Flush predefined chains
+iptables -X                    # Flush user-made chains</code></pre>
+
+                <h3>Common Options</h3>
+                <ul>
+                    <li><code>-p tcp/udp/icmp</code> - Protocol</li>
+                    <li><code>-i eth0</code> - Input interface</li>
+                    <li><code>-o eth0</code> - Output interface</li>
+                    <li><code>-s 192.168.1.0/24</code> - Source IP</li>
+                    <li><code>-d 192.168.1.0/24</code> - Destination IP</li>
+                    <li><code>--sport 80</code> - Source port</li>
+                    <li><code>--dport 80</code> - Destination port</li>
+                </ul>
+
+                <h3>Connection States</h3>
+                <pre><code>iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -m state --state NEW -p tcp --dport 22 -j ACCEPT</code></pre>
+                <ul>
+                    <li><strong>NEW:</strong> First packet of new connection</li>
+                    <li><strong>ESTABLISHED:</strong> Established connection</li>
+                    <li><strong>RELATED:</strong> Related to existing connection</li>
+                    <li><strong>INVALID:</strong> Corrupted or unknown packet</li>
+                </ul>
+
+                <h3>Example Rules</h3>
+                <pre><code># Allow SSH output
+iptables -A OUTPUT -o enp0s3 -p tcp --dport 22 -j ACCEPT
+
+# Allow established connections
+iptables -A INPUT -i enp0s3 -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Reject ping to specific IP
+iptables -A INPUT -d 192.168.100.1 -p icmp --icmp-type echo-request -j REJECT</code></pre>
+
+                <div class="note">
+                    <p><strong>IPv6:</strong> Use <code>ip6tables</code> with the same syntax</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="ssh">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    SSH Configuration
+                </h2>
+
+                <h3>Basic Connection</h3>
+                <pre><code>ssh username@server</code></pre>
+
+                <h3>Managing Host Keys</h3>
+                <p>Remove a host key (after server key change):</p>
+                <pre><code>ssh-keygen -R hostname</code></pre>
+
+                <h3>File Transfers</h3>
+
+                <h4>SCP (Secure Copy)</h4>
+                <pre><code># Copy to remote
+scp file.txt user@server:/home/user/
+
+# Copy from remote
+scp user@server:/home/user/file.txt .
+
+# Copy directory recursively
+scp -r my_folder user@server:/home/user/</code></pre>
+
+                <h4>SFTP (Secure FTP)</h4>
+                <pre><code>sftp user@server</code></pre>
+                <p><strong>Commands:</strong> ls, pwd, cd, lcd, get, put, exit</p>
+
+                <h3>SSH Key Authentication</h3>
+                <pre><code># Generate key pair
+ssh-keygen -t rsa -b 4096
+
+# Copy public key to server
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@server</code></pre>
+
+                <h3>SSH Config File</h3>
+                <p>Create <code>~/.ssh/config</code>:</p>
+                <pre><code>Host myserver
+    User username
+    Hostname server.example.com
+    Port 22
+    IdentityFile ~/.ssh/id_rsa</code></pre>
+                <p>Connect with: <code>ssh myserver</code></p>
+
+                <h3>Running Remote Commands</h3>
+                <pre><code># Execute command
+ssh user@server "command"
+
+# Execute without opening session
+ssh -n user@server command</code></pre>
+
+                <h3>SSH Tunneling (Port Forwarding)</h3>
+
+                <h4>Local Port Forwarding (-L)</h4>
+                <pre><code>ssh -L 8080:localhost:80 user@server</code></pre>
+                <p>Access remote service at <code>localhost:8080</code></p>
+
+                <h4>Remote Port Forwarding (-R)</h4>
+                <pre><code>ssh -R 9000:localhost:3000 user@server</code></pre>
+                <p>Expose local port 3000 as port 9000 on remote server</p>
+
+                <h3>SSH Connection Process</h3>
+                <ol>
+                    <li>Client contacts server on port 22</li>
+                    <li>Exchange protocol versions</li>
+                    <li>Server sends host key, server key, and random sequence</li>
+                    <li>Generate common session ID (MD5 hash)</li>
+                    <li>Client sends encrypted session key</li>
+                    <li>Secure channel established</li>
+                    <li>Client authentication (password or key-based)</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section" id="apache">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4m0-4h.01"/>
+                    </svg>
+                    Apache Web Server
+                </h2>
+
+                <h3>Configuration Files</h3>
+                <ul>
+                    <li><code>/etc/apache2/apache2.conf</code> - Main configuration</li>
+                    <li><code>/etc/apache2/ports.conf</code> - Port configuration</li>
+                    <li><code>/etc/apache2/sites-available/</code> - Virtual host configs</li>
+                    <li><code>/etc/apache2/sites-enabled/</code> - Enabled sites</li>
+                </ul>
+
+                <p>Check syntax: <code>apache2ctl configtest</code></p>
+
+                <h3>Main Configuration</h3>
+                <p>File: <code>/etc/apache2/apache2.conf</code></p>
+                <pre><code>Timeout 300
+KeepAlive on
+MaxKeepAliveRequests 100
+KeepAliveTimeout 15
+MinSpareServers 4
+MaxSpareServers 4
+StartServers 5
+MaxClients 20
+MaxRequestsPerChild 500</code></pre>
+
+                <h3>Ports Configuration</h3>
+                <p>File: <code>/etc/apache2/ports.conf</code></p>
+                <pre><code>Listen 80
+NameVirtualHost 192.168.21.7:80</code></pre>
+
+                <h3>Virtual Host Setup</h3>
+                <ol>
+                    <li>Create directory: <code>mkdir /var/www/mysite</code></li>
+                    <li>Add index file: <code>echo "&lt;h1&gt;My Site&lt;/h1&gt;" &gt; /var/www/mysite/index.html</code></li>
+                    <li>Create config in <code>/etc/apache2/sites-available/mysite.conf</code></li>
+                    <li>Enable site: <code>a2ensite mysite</code></li>
+                    <li>Restart: <code>systemctl restart apache2</code></li>
+                </ol>
+
+                <h4>Basic Virtual Host</h4>
+                <pre><code>&lt;VirtualHost *:80&gt;
+    ServerName mysite.example.com
+    ServerAlias www.mysite.example.com
+    DocumentRoot /var/www/mysite
+    
+    &lt;Directory /var/www/mysite&gt;
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    &lt;/Directory&gt;
+    
+    ErrorLog ${APACHE_LOG_DIR}/mysite_error.log
+    CustomLog ${APACHE_LOG_DIR}/mysite_access.log combined
+&lt;/VirtualHost&gt;</code></pre>
+
+                <h3>Virtual Hosting by Port</h3>
+                <p>Add to <code>ports.conf</code>:</p>
+                <img src="img/pasted_image009001.png" alt="Apache Port Configuration" class="content-image">
+                <pre><code>Listen 8080
+NameVirtualHost *:8080</code></pre>
+                
+                <p>Configure site files:</p>
+                <img src="img/pasted_image007001.png" alt="Apache Virtual Host by Port 1" class="content-image">
+                <img src="img/pasted_image008001.png" alt="Apache Virtual Host by Port 2" class="content-image">
+
+                <h3>Virtual Hosting by IP</h3>
+                <p>Add IP alias:</p>
+                <img src="img/pasted_image010001.png" alt="Apache IP Alias Configuration" class="content-image">
+                <pre><code>ip addr add 192.168.21.8/24 dev eth0</code></pre>
+                
+                <p>Edit configuration files:</p>
+                <img src="img/pasted_image011001.png" alt="Apache Virtual Host by IP 1" class="content-image">
+                <img src="img/pasted_image012001.png" alt="Apache Virtual Host by IP 2" class="content-image">
+                
+                <p>Edit ports file:</p>
+                <img src="img/pasted_image013001.png" alt="Apache Ports File Configuration" class="content-image">
+
+                <h3>Access Control</h3>
+                <pre><code>&lt;Directory /var/www/site1&gt;
+    &lt;RequireAll&gt;
+        Require ip 192.168.1.0/24
+        
+        AuthType Basic
+        AuthName "Restricted Area"
+        AuthUserFile /var/www/site1/.htpasswd
+        Require valid-user
+    &lt;/RequireAll&gt;
+&lt;/Directory&gt;</code></pre>
+
+                <p>Create password file:</p>
+                <pre><code>htpasswd -c -m /var/www/site1/.htpasswd username</code></pre>
+
+                <h3>SSL/TLS Configuration</h3>
+                <ol>
+                    <li>Enable SSL module: <code>a2enmod ssl</code></li>
+                    <li>Generate CA and certificates</li>
+                    <li>Configure virtual host for port 443</li>
+                    <li>Redirect HTTP to HTTPS</li>
+                </ol>
+
+                <h4>Create Certificate Authority</h4>
+                <pre><code>mkdir /etc/apache2/ssl
+cd /etc/apache2/ssl
+
+# Create CA
+openssl req -x509 -newkey rsa:2048 -days 3650 \
+    -keyout cakey.key -out cacert.pem</code></pre>
+
+                <h4>Generate Server Certificate</h4>
+                <pre><code># Generate certificate request
+openssl req -newkey rsa:2048 -keyout serveur.key -out serveur.csr
+
+# Sign with CA
+touch index.txt
+echo "01" > serial
+echo "01" > crlnumber
+
+mkdir certs crl newcerts private
+cp cakey.key private/
+
+# Update openssl.cnf with correct paths
+openssl ca -config openssl.cnf -in serveur.csr -out serveur.crt</code></pre>
+
+                <h4>SSL Virtual Host</h4>
+                <pre><code>&lt;VirtualHost 192.168.21.1:443&gt;
+    ServerName serveur.domain.com
+    DocumentRoot /var/www/secure
+    
+    SSLEngine on
+    SSLCertificateFile /etc/apache2/ssl/serveur.crt
+    SSLCertificateKeyFile /etc/apache2/ssl/serveur.key
+&lt;/VirtualHost&gt;</code></pre>
+
+                <h4>HTTP to HTTPS Redirect</h4>
+                <pre><code>&lt;VirtualHost *:80&gt;
+    ServerName serveur.domain.com
+    Redirect / https://serveur.domain.com/
+&lt;/VirtualHost&gt;</code></pre>
+
+                <h3>Useful Commands</h3>
+                <pre><code>a2ensite sitename      # Enable site
+a2dissite sitename     # Disable site
+a2enmod modname        # Enable module
+a2dismod modname       # Disable module
+apache2ctl configtest  # Test configuration
+systemctl restart apache2  # Restart server</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="samba">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                        <polyline points="13 2 13 9 20 9"/>
+                    </svg>
+                    Samba File Sharing
+                </h2>
+
+                <h3>Installation</h3>
+                <pre><code>apt-get install samba samba-common</code></pre>
+
+                <h3>Configuration File</h3>
+                <p>File: <code>/etc/samba/smb.conf</code></p>
+
+                <p>Test configuration:</p>
+                <pre><code>testparm -s                    # Print config without comments
+smbclient -L localhost         # List shares</code></pre>
+
+                <h3>Predefined Variables</h3>
+                <table>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr><td><code>%v</code></td><td>Samba version</td></tr>
+                    <tr><td><code>%u</code></td><td>Current UNIX username</td></tr>
+                    <tr><td><code>%H</code></td><td>User's home directory</td></tr>
+                    <tr><td><code>%S</code></td><td>Current share name</td></tr>
+                    <tr><td><code>%I</code></td><td>Client IP address</td></tr>
+                    <tr><td><code>%h</code></td><td>Samba server hostname</td></tr>
+                </table>
+
+                <h3>Global Configuration</h3>
+                <pre><code>[global]
+    workgroup = WORKGROUP
+    server string = Samba Server %v
+    security = user
+    map to guest = bad user
+    dns proxy = no
+    
+    # Master browser roles
+    local master = yes
+    domain master = no
+    
+    # WINS (use one, not both)
+    wins support = yes
+    # wins server = 192.168.1.1</code></pre>
+
+                <h3>Share Configuration</h3>
+
+                <h4>Basic Share</h4>
+                <pre><code>[sharedfolder]
+    path = /srv/samba/sharedfolder
+    browseable = yes
+    writable = yes
+    guest ok = no
+    valid users = user1, @group1
+    create mode = 0660
+    directory mode = 0770
+    comment = Shared Files</code></pre>
+
+                <h4>Home Directories</h4>
+                <pre><code>[homes]
+    comment = Home Directories
+    browseable = no
+    writable = yes
+    valid users = %S
+    create mode = 0700
+    directory mode = 0700</code></pre>
+
+                <h4>Public Share</h4>
+                <pre><code>[public]
+    path = /srv/samba/public
+    browseable = yes
+    writable = yes
+    guest ok = yes
+    read only = no
+    create mode = 0777
+    directory mode = 0777</code></pre>
+
+                <h3>User Management</h3>
+                <pre><code># Create Linux user
+useradd -m user1
+
+# Set Samba password
+smbpasswd -a user1
+
+# Enable user
+smbpasswd -e user1
+
+# Disable user
+smbpasswd -d user1
+
+# Delete user
+smbpasswd -x user1</code></pre>
+
+                <h3>Folder Permissions</h3>
+                <pre><code>chown -R user1:groupname /srv/samba/sharedfolder
+chmod -R 770 /srv/samba/sharedfolder</code></pre>
+
+                <h3>Accessing Shares</h3>
+
+                <h4>Linux</h4>
+                <p>From file manager: <code>smb://servername/sharedfolder</code></p>
+                <p>Mount:</p>
+                <pre><code>mount -t cifs //servername/sharedfolder /mnt/share -o username=user1</code></pre>
+
+                <h4>Windows</h4>
+                <pre><code>net use X: \\servername\sharedfolder
+net view \\servername
+net use X: /delete</code></pre>
+
+                <h3>Service Management</h3>
+                <pre><code>systemctl start smbd nmbd
+systemctl enable smbd nmbd
+systemctl restart smbd nmbd
+systemctl status smbd nmbd</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="vsftpd">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    vsftpd FTP Server
+                </h2>
+
+                <h3>Configuration File</h3>
+                <p>File: <code>/etc/vsftpd.conf</code></p>
+
+                <h3>Basic Settings</h3>
+                <pre><code># Standalone server
+listen=YES
+listen_ipv6=YES
+
+# Anonymous access
+anonymous_enable=NO
+
+# Local users
+local_enable=YES
+write_enable=YES
+
+# Chroot jail
+chroot_local_user=YES
+allow_writeable_chroot=YES
+
+# FTP modes
+port_enable=YES
+pasv_enable=YES</code></pre>
+
+                <h3>Active vs Passive Mode</h3>
+                <img src="img/pasted_image043.png" alt="FTP Active vs Passive Mode Diagram" class="content-image">
+                <ul>
+                    <li><strong>Active (PORT):</strong> Client opens port, server connects</li>
+                    <li><strong>Passive (PASV):</strong> Server opens port, client connects (recommended for NAT)</li>
+                </ul>
+
+                <h3>Chroot Configuration</h3>
+                <pre><code>chroot_local_user=YES
+chroot_list_enable=YES
+chroot_list_file=/etc/vsftpd.chroot_list</code></pre>
+
+                <table>
+                    <tr>
+                        <th>chroot_local_user</th>
+                        <th>User in list?</th>
+                        <th>Chrooted?</th>
+                    </tr>
+                    <tr>
+                        <td>YES</td>
+                        <td>Yes</td>
+                        <td>No (exception)</td>
+                    </tr>
+                    <tr>
+                        <td>YES</td>
+                        <td>No</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>NO</td>
+                        <td>Yes</td>
+                        <td>Yes (inclusion)</td>
+                    </tr>
+                    <tr>
+                        <td>NO</td>
+                        <td>No</td>
+                        <td>No</td>
+                    </tr>
+                </table>
+
+                <h3>File Upload Settings</h3>
+                <pre><code># Change ownership of uploads
+chown_uploads=YES
+chown_username=ftpuser
+
+# File permissions (umask)
+local_umask=0022    # Files: 644, Dirs: 755</code></pre>
+
+                <h3>Anonymous Configuration</h3>
+                <pre><code>anonymous_enable=YES
+anon_upload_enable=NO
+anon_mkdir_write_enable=NO
+anon_root=/srv/ftp</code></pre>
+
+                <h3>Security Settings</h3>
+                <pre><code># Hide IDs
+hide_ids=YES
+
+# Deny access to files
+deny_file={*.mp3,*.avi}
+
+# Banner
+ftpd_banner=Welcome to FTP Server
+
+# Log file
+xferlog_enable=YES
+xferlog_file=/var/log/vsftpd.log</code></pre>
+
+                <h3>Service Management</h3>
+                <pre><code>systemctl start vsftpd
+systemctl enable vsftpd
+systemctl restart vsftpd</code></pre>
+
+                <h3>User Setup</h3>
+                <pre><code># Create FTP user
+useradd -m -s /bin/bash ftpuser
+passwd ftpuser
+
+# Set permissions
+chmod 755 /home/ftpuser
+mkdir /home/ftpuser/ftp
+chmod 755 /home/ftpuser/ftp</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="nfs">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    NFS Server
+                </h2>
+
+                <h3>Starting NFS</h3>
+                <pre><code>sudo systemctl start nfs-kernel-server
+sudo systemctl enable nfs-kernel-server</code></pre>
+
+                <h3>Verify Services</h3>
+                <pre><code># Check NFS (port 2049)
+rpcinfo -p | grep nfs
+
+# Check portmapper (port 111)
+rpcinfo -p | grep portmapper</code></pre>
+
+                <h3>Security Configuration</h3>
+                <p>Control access via:</p>
+                <ul>
+                    <li><code>/etc/hosts.allow</code></li>
+                    <li><code>/etc/hosts.deny</code></li>
+                </ul>
+
+                <p>Documentation:</p>
+                <pre><code>man hosts_access
+man hosts_options
+man hosts.allow</code></pre>
+
+                <h3>Exporting Directories</h3>
+                <p>Configuration file: <code>/etc/exports</code></p>
+
+                <h4>Example Entries</h4>
+                <img src="img/pasted_image042.png" alt="NFS Exports Configuration Example" class="content-image">
+                
+                <pre><code># Export to domain
+/path/to/shared/dir  *.domain.com(rw)
+
+# Export to subnet
+/path/to/shared/dir  192.168.100.0/24(rw)
+
+# Multiple options
+/shared  client1(rw,sync) client2(ro,sync)</code></pre>
+
+                <h4>Common Options</h4>
+                <ul>
+                    <li><code>rw</code> - Read-write access</li>
+                    <li><code>ro</code> - Read-only access</li>
+                    <li><code>sync</code> - Synchronous writes (safer)</li>
+                    <li><code>async</code> - Asynchronous writes (faster)</li>
+                    <li><code>no_root_squash</code> - Allow remote root as local root</li>
+                    <li><code>root_squash</code> - Map remote root to nobody (default)</li>
+                    <li><code>subtree_check</code> - Verify file paths (default)</li>
+                    <li><code>no_subtree_check</code> - Disable subtree checking (better performance)</li>
+                </ul>
+
+                <div class="note">
+                    <p><strong>Note:</strong> For more options, see <code>man exports</code></p>
+                </div>
+
+                <h3>Apply Export Changes</h3>
+                <pre><code># Export all directories
+exportfs -a
+
+# Re-export all directories
+exportfs -ra
+
+# List current exports
+exportfs -v</code></pre>
+
+                <h3>Directory Permissions</h3>
+                <pre><code># Set ownership
+sudo chown nobody:nogroup /path/to/shared
+
+# Set permissions
+sudo chmod 755 /path/to/shared</code></pre>
+
+                <h3>Client Configuration</h3>
+
+                <h4>Check Available Exports</h4>
+                <pre><code>showmount -e server_name</code></pre>
+
+                <h4>Manual Mount</h4>
+                <pre><code># Mount NFS share
+sudo mount -t nfs server_name:/path/to/shared /mnt
+
+# List mounted NFS shares
+mount -t nfs
+
+# Unmount
+sudo umount /mnt</code></pre>
+
+                <h4>Automatic Mount via fstab</h4>
+                <p>Add to <code>/etc/fstab</code>:</p>
+                <pre><code>server:/SharedDir   /mnt   nfs   defaults   0  0</code></pre>
+
+                <p>Mount all fstab entries:</p>
+                <pre><code>sudo mount -a</code></pre>
+
+                <h3>Troubleshooting</h3>
+                <pre><code># Check NFS server status
+systemctl status nfs-kernel-server
+
+# View server logs
+journalctl -u nfs-kernel-server -f
+
+# Check RPC services
+rpcinfo -p
+
+# Test connectivity
+ping server_name</code></pre>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Mohend Boubekeur. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(168, 85, 247, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Smooth scroll to sections
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    const offset = 120;
+                    const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
