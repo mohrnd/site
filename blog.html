@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +19,7 @@
         :root {
             --accent: #a855f7;
             --accent-light: #c084fc;
+            --accent-dark: #7e22ce;
             --bg-dark: #0b0014;
             --text-light: #f2e9ff;
             --text-muted: #b69cd9;
@@ -49,43 +49,44 @@
             display: none;
         }
 
-        /* Background Effects */
+        /* Enhanced Background Effects */
         .blob {
             position: fixed;
-            width: 600px;
-            height: 600px;
+            width: 700px;
+            height: 700px;
             border-radius: 50%;
-            filter: blur(160px);
-            opacity: 0.5;
+            filter: blur(180px);
+            opacity: 0.6;
             z-index: 0;
-            animation: moveBlobs 25s infinite ease-in-out alternate;
+            animation: moveBlobs 30s infinite ease-in-out alternate;
         }
 
         .blob:nth-child(1) {
-            background: #a855f7;
-            top: -100px;
-            left: -100px;
+            background: radial-gradient(circle, #a855f7 0%, #7e22ce 100%);
+            top: -150px;
+            left: -150px;
             animation-delay: 0s;
         }
 
         .blob:nth-child(2) {
-            background: #7e22ce;
-            bottom: -150px;
-            right: -150px;
-            animation-delay: 5s;
+            background: radial-gradient(circle, #7e22ce 0%, #5b21b6 100%);
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 7s;
         }
 
         @keyframes moveBlobs {
             0% {
-                transform: translate(0, 0) scale(1);
+                transform: translate(0, 0) scale(1) rotate(0deg);
             }
-
-            50% {
-                transform: translate(100px, -80px) scale(1.2);
+            33% {
+                transform: translate(120px, -100px) scale(1.3) rotate(120deg);
             }
-
+            66% {
+                transform: translate(-100px, 80px) scale(0.9) rotate(240deg);
+            }
             100% {
-                transform: translate(-80px, 100px) scale(1);
+                transform: translate(50px, -50px) scale(1.1) rotate(360deg);
             }
         }
 
@@ -99,50 +100,125 @@
             pointer-events: none;
         }
 
-        /* Back Button */
-        .back-btn {
+        /* Top Navigation Bar */
+        .top-nav {
             position: fixed;
-            top: 2rem;
-            left: 2rem;
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            border-radius: 50px;
-            padding: 0.75rem 1.5rem;
-            backdrop-filter: blur(10px);
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-            animation: slideInLeft 0.6s ease-out;
+            padding: 2rem;
+            animation: slideInDown 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes slideInLeft {
+        @keyframes slideInDown {
             from {
                 opacity: 0;
-                transform: translateX(-50px);
+                transform: translateY(-80px);
             }
-
             to {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateY(0);
             }
+        }
+
+        /* Enhanced Back Button */
+        .back-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            padding: 0.85rem 1.75rem;
+            backdrop-filter: blur(20px);
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
         }
 
         .back-btn:hover {
-            background: rgba(168, 85, 247, 0.1);
+            background: rgba(168, 85, 247, 0.15);
             border-color: var(--accent);
-            transform: translateX(-5px);
-            box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3);
+            transform: translateX(-8px);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
         }
 
         .back-btn svg {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
+            transition: transform 0.4s;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-5px);
+        }
+
+        /* Enhanced Language Toggle */
+        .lang-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            padding: 0.4rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s;
+            width: 140px;
+        }
+
+        .lang-toggle:hover {
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0.6rem 0;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.5);
+            transform: scale(1.05);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: var(--text-light);
+            background: rgba(168, 85, 247, 0.1);
         }
 
         /* Coming Soon Container */
@@ -151,165 +227,256 @@
             z-index: 2;
             text-align: center;
             padding: 2rem;
-            max-width: 800px;
-        }
-
-        .coming-soon-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 5rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--accent);
-            text-shadow: 0 0 30px var(--accent), 0 0 60px var(--accent);
-            animation: floatTitle 3s ease-in-out infinite, pulseGlow 4s infinite ease-in-out, fadeInScale 1s ease-out;
-            margin-bottom: 2rem;
-        }
-
-        @keyframes floatTitle {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-20px);
-            }
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% {
-                text-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent);
-            }
-
-            50% {
-                text-shadow: 0 0 40px var(--accent), 0 0 80px var(--accent), 0 0 120px var(--accent);
-            }
-        }
-
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .coming-soon-subtitle {
-            font-size: 1.5rem;
-            color: var(--text-muted);
-            margin-bottom: 3rem;
-            animation: fadeIn 1s ease-out 0.3s both;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
+            max-width: 900px;
         }
 
         .coming-soon-icon {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 2rem;
-            animation: rotateIcon 20s linear infinite, fadeIn 1s ease-out 0.6s both;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 2.5rem;
+            animation: rotateIcon 25s linear infinite, floatIcon 4s ease-in-out infinite, fadeInScale 1s ease-out 0.3s both;
+            filter: drop-shadow(0 0 30px var(--accent));
         }
 
         @keyframes rotateIcon {
             from {
                 transform: rotate(0deg);
             }
-
             to {
                 transform: rotate(360deg);
+            }
+        }
+
+        @keyframes floatIcon {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-15px) rotate(180deg);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
             }
         }
 
         .coming-soon-icon svg {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 0 20px var(--accent));
+            filter: drop-shadow(0 0 25px var(--accent));
         }
 
+        .coming-soon-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5.5rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, white 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: floatTitle 4s ease-in-out infinite, pulseGlow 5s infinite ease-in-out, fadeIn 1s ease-out;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        @keyframes floatTitle {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-25px);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 50px rgba(168, 85, 247, 0.9));
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .coming-soon-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: expandLine 1.5s ease-out 0.8s both;
+        }
+
+        @keyframes expandLine {
+            from {
+                width: 0;
+            }
+            to {
+                width: 250px;
+            }
+        }
+
+        .coming-soon-subtitle {
+            font-size: 1.6rem;
+            color: var(--text-muted);
+            margin-bottom: 4rem;
+            line-height: 1.8;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced Feature Grid */
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 3rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
             animation: fadeIn 1s ease-out 0.9s both;
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            border-radius: 15px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(168, 85, 247, 0.25);
+            border-radius: 25px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 50px rgba(168, 85, 247, 0.5);
             border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .feature-card svg {
-            width: 40px;
-            height: 40px;
-            margin-bottom: 1rem;
-            filter: drop-shadow(0 0 10px var(--accent));
+            width: 50px;
+            height: 50px;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 15px var(--accent));
+            transition: all 0.4s;
+        }
+
+        .feature-card:hover svg {
+            transform: scale(1.2) rotate(10deg);
+            filter: drop-shadow(0 0 25px var(--accent));
         }
 
         .feature-card h3 {
-            color: var(--accent-light);
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-light) 0%, white 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
         }
 
         .feature-card p {
             color: var(--text-muted);
-            font-size: 0.9rem;
-            line-height: 1.6;
+            font-size: 1rem;
+            line-height: 1.7;
         }
 
         @media (max-width: 768px) {
             .coming-soon-title {
-                font-size: 3rem;
+                font-size: 3.5rem;
+                letter-spacing: 3px;
             }
 
             .coming-soon-subtitle {
-                font-size: 1.2rem;
+                font-size: 1.3rem;
+            }
+
+            .top-nav {
+                padding: 1rem;
+                flex-wrap: wrap;
+                gap: 0.75rem;
             }
 
             .back-btn {
-                top: 1rem;
-                left: 1rem;
+                padding: 0.7rem 1.3rem;
+                font-size: 0.9rem;
+            }
+
+            .lang-toggle {
+                width: 120px;
+            }
+
+            .coming-soon-icon {
+                width: 100px;
+                height: 100px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
-
 <body>
     <!-- Background Effects -->
     <div class="blob"></div>
     <div class="blob"></div>
     <canvas id="particles"></canvas>
 
-    <!-- Back Button -->
-    <a href="index.html" class="back-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        <span>Back to Portfolio</span>
-    </a>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <a href="index.html" class="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back to Portfolio</span>
+        </a>
+    </div>
 
     <!-- Coming Soon Content -->
     <div class="coming-soon-container">
@@ -327,7 +494,7 @@
         
         <p class="coming-soon-subtitle">
             Blog & Tutorials are currently under construction.<br>
-            Stay tuned!
+            Stay tuned for exciting content!
         </p>
 
         <div class="feature-grid">
@@ -337,7 +504,7 @@
                     <polyline points="17 2 12 7 7 2"></polyline>
                 </svg>
                 <h3>Technical Guides</h3>
-                <p>Step-by-step tutorials</p>
+                <p>In-depth step-by-step tutorials on cybersecurity and system architecture</p>
             </div>
 
             <div class="feature-card">
@@ -346,8 +513,8 @@
                     <polyline points="2 17 12 22 22 17"></polyline>
                     <polyline points="2 12 12 17 22 12"></polyline>
                 </svg>
-                <h3>Projects</h3>
-                <p>Things I've built and tinkered with</p>
+                <h3>Project Showcases</h3>
+                <p>Deep dives into things I've built and lessons learned along the way</p>
             </div>
 
             <div class="feature-card">
@@ -356,12 +523,19 @@
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                 </svg>
                 <h3>Cheat Sheets</h3>
-                <p>Quick reference guides and commands</p>
+                <p>Quick reference guides, commands, and essential resources</p>
             </div>
         </div>
     </div>
 
     <script>
+        // Language switching function
+        function switchLang(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+            });
+        }
+
         // Particle animation
         const canvas = document.getElementById('particles');
         const ctx = canvas.getContext('2d');
@@ -375,15 +549,16 @@
         });
 
         const particles = [];
-        const particleCount = 80;
+        const particleCount = 100;
 
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.radius = Math.random() * 2 + 1;
+                this.vx = (Math.random() - 0.5) * 0.6;
+                this.vy = (Math.random() - 0.5) * 0.6;
+                this.radius = Math.random() * 2.5 + 1;
+                this.opacity = Math.random() * 0.5 + 0.3;
             }
 
             update() {
@@ -397,7 +572,7 @@
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(168, 85, 247, 0.6)';
+                ctx.fillStyle = `rgba(168, 85, 247, ${this.opacity})`;
                 ctx.fill();
             }
         }
@@ -414,17 +589,16 @@
                 particle.draw();
             });
 
-            // Draw connections
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    if (distance < 150) {
+                    if (distance < 120) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 * (1 - distance / 150)})`;
-                        ctx.lineWidth = 0.5;
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.25 * (1 - distance / 120)})`;
+                        ctx.lineWidth = 1;
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
                         ctx.stroke();
@@ -438,5 +612,4 @@
         animate();
     </script>
 </body>
-
 </html>
