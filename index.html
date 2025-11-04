@@ -1,32 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mohend's site</title>
     <link rel="icon" href="/Assets/bimi-logo.svg" type="image/svg+xml">
     <meta name="description" content="Portfolio of Mohend Boubekeur – Cybersecurity & Networks student specializing in system architecture, networks, and cybersecurity.">
-    <meta property="og:title" content="Mohend Boubekeur – Cybersecurity & Networks"> 
-    <meta property="og:image" content="/Assets/bimi-logo.svg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://boubekeur.net">
-   
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         html {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
 
-html::-webkit-scrollbar {
-    display: none;
-}
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
         :root {
             --accent: #a855f7;
             --accent-light: #c084fc;
+            --accent-dark: #7e22ce;
             --bg-dark: #0b0014;
             --text-light: #f2e9ff;
             --text-muted: #b69cd9;
@@ -54,43 +48,44 @@ html::-webkit-scrollbar {
             display: none;
         }
 
-        /* Background Effects */
+        /* Enhanced Background Effects */
         .blob {
             position: fixed;
-            width: 600px;
-            height: 600px;
+            width: 700px;
+            height: 700px;
             border-radius: 50%;
-            filter: blur(160px);
-            opacity: 0.5;
+            filter: blur(180px);
+            opacity: 0.6;
             z-index: 0;
-            animation: moveBlobs 25s infinite ease-in-out alternate;
+            animation: moveBlobs 30s infinite ease-in-out alternate;
         }
 
         .blob:nth-child(1) {
-            background: #a855f7;
-            top: -100px;
-            left: -100px;
+            background: radial-gradient(circle, #a855f7 0%, #7e22ce 100%);
+            top: -150px;
+            left: -150px;
             animation-delay: 0s;
         }
 
         .blob:nth-child(2) {
-            background: #7e22ce;
-            bottom: -150px;
-            right: -150px;
-            animation-delay: 5s;
+            background: radial-gradient(circle, #7e22ce 0%, #5b21b6 100%);
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 7s;
         }
 
         @keyframes moveBlobs {
             0% {
-                transform: translate(0, 0) scale(1);
+                transform: translate(0, 0) scale(1) rotate(0deg);
             }
-
-            50% {
-                transform: translate(100px, -80px) scale(1.2);
+            33% {
+                transform: translate(120px, -100px) scale(1.3) rotate(120deg);
             }
-
+            66% {
+                transform: translate(-100px, 80px) scale(0.9) rotate(240deg);
+            }
             100% {
-                transform: translate(-80px, 100px) scale(1);
+                transform: translate(50px, -50px) scale(1.1) rotate(360deg);
             }
         }
 
@@ -104,7 +99,7 @@ html::-webkit-scrollbar {
             pointer-events: none;
         }
 
-        /* Top Navigation Bar */
+        /* Enhanced Top Navigation */
         .top-nav {
             position: fixed;
             top: 2rem;
@@ -113,60 +108,88 @@ html::-webkit-scrollbar {
             display: flex;
             align-items: center;
             gap: 1rem;
-            animation: slideInRight 0.6s ease-out;
+            animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @keyframes slideInRight {
             from {
                 opacity: 0;
-                transform: translateX(50px);
+                transform: translateX(80px);
             }
-
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
 
-        /* Blog Button */
+        /* Enhanced Blog Button */
         .blog-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(168, 85, 247, 0.3);
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(168, 85, 247, 0.3);
             border-radius: 50px;
-            padding: 0.75rem 1.5rem;
-            backdrop-filter: blur(10px);
-            color: var(--accent);
+            padding: 0.85rem 1.75rem;
+            backdrop-filter: blur(20px);
+            color: var(--accent-light);
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
+            gap: 0.6rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .blog-btn:hover::before {
+            left: 100%;
         }
 
         .blog-btn:hover {
-            background: rgba(168, 85, 247, 0.1);
+            background: rgba(168, 85, 247, 0.15);
             border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
         }
 
         .blog-btn svg {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
+            transition: transform 0.4s;
         }
 
-        /* Language Toggle */
+        .blog-btn:hover svg {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        /* Enhanced Language Toggle */
         .lang-toggle {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(168, 85, 247, 0.3);
+            gap: 0.3rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(168, 85, 247, 0.3);
             border-radius: 50px;
-            padding: 0.5rem;
-            backdrop-filter: blur(10px);
+            padding: 0.4rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s;
+            width: 140px;
+            margin-left: auto;
+        }
+
+        .lang-toggle:hover {
+            border-color: rgba(168, 85, 247, 0.5);
         }
 
         .lang-btn {
@@ -174,24 +197,73 @@ html::-webkit-scrollbar {
             border: none;
             color: var(--text-muted);
             font-weight: 600;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
         }
 
         .lang-btn.active {
-            background: var(--accent);
-            color: var(--bg-dark);
-            box-shadow: 0 0 20px var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.5);
+            transform: scale(1.05);
         }
 
         .lang-btn:hover:not(.active) {
             color: var(--text-light);
+            background: rgba(168, 85, 247, 0.1);
         }
 
-        /* Header */
+        /* Enhanced Logo */
+        .logo {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            width: 180px;
+            height: 80px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1), logoFloat 4s ease-in-out infinite;
+            filter: drop-shadow(0 5px 15px rgba(168, 85, 247, 0.3));
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .logo:hover {
+            transform: scale(1.15) translateY(-8px) rotate(2deg);
+            filter: drop-shadow(0 8px 30px rgba(168, 85, 247, 0.6));
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s;
+        }
+
+        /* Enhanced Header */
         header {
             position: relative;
             text-align: center;
@@ -201,82 +273,145 @@ html::-webkit-scrollbar {
 
         header h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3rem;
-            letter-spacing: 2px;
+            font-size: 3.5rem;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            color: var(--accent);
-            text-shadow: 0 0 20px var(--accent);
-            animation: pulseGlow 4s infinite ease-in-out, fadeInDown 0.8s ease-out;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, white 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulseGlow 5s infinite ease-in-out, fadeInDown 1s ease-out;
+            position: relative;
+        }
+
+        header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: expandLine 1.5s ease-out 0.5s both;
+        }
+
+        @keyframes expandLine {
+            from {
+                width: 0;
+            }
+            to {
+                width: 200px;
+            }
         }
 
         @keyframes pulseGlow {
-
-            0%,
-            100% {
-                text-shadow: 0 0 15px var(--accent);
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.5));
             }
-
             50% {
-                text-shadow: 0 0 30px var(--accent);
+                filter: drop-shadow(0 0 35px rgba(168, 85, 247, 0.8));
             }
         }
 
         @keyframes fadeInDown {
             from {
                 opacity: 0;
-                transform: translateY(-30px);
+                transform: translateY(-40px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        header p {
+        .header-subtitle {
             color: var(--text-muted);
-            margin-top: 1rem;
-            font-size: 1.2rem;
-            animation: fadeIn 1s ease-out 0.3s both;
+            font-size: 1.4rem;
+            margin-top: 2rem;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced Contact Links */
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            animation: fadeIn 1s ease-out 0.6s both;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
             }
-
             to {
                 opacity: 1;
             }
         }
 
-        .contact-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-            animation: fadeIn 1s ease-out 0.6s both;
-        }
-
         .contact-link {
-            color: var(--accent);
+            color: var(--accent-light);
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            gap: 0.6rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .contact-link:hover::before {
+            left: 100%;
         }
 
         .contact-link:hover {
-            color: var(--text-light);
-            background: rgba(168, 85, 247, 0.1);
-            transform: translateY(-2px);
+            color: white;
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 25px rgba(168, 85, 247, 0.4);
         }
 
-        /* Main Content */
+        .contact-link svg {
+            width: 22px;
+            height: 22px;
+            transition: transform 0.4s;
+        }
+
+        .contact-link:hover svg {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        /* Enhanced Main Content */
         main {
             position: relative;
             z-index: 2;
@@ -289,141 +424,175 @@ html::-webkit-scrollbar {
         }
 
         section {
-            animation: fadeInUp 0.6s ease-out both;
+            animation: fadeInScale 0.8s ease-out both;
         }
 
-        section:nth-child(1) {
-            animation-delay: 0.1s;
-        }
+        section:nth-child(1) { animation-delay: 0.1s; }
+        section:nth-child(2) { animation-delay: 0.2s; }
+        section:nth-child(3) { animation-delay: 0.3s; }
+        section:nth-child(4) { animation-delay: 0.4s; }
+        section:nth-child(5) { animation-delay: 0.5s; }
+        section:nth-child(6) { animation-delay: 0.6s; }
+        section:nth-child(7) { animation-delay: 0.7s; }
 
-        section:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        section:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-        section:nth-child(4) {
-            animation-delay: 0.4s;
-        }
-
-        section:nth-child(5) {
-            animation-delay: 0.5s;
-        }
-
-        section:nth-child(6) {
-            animation-delay: 0.6s;
-        }
-
-        section:nth-child(7) {
-            animation-delay: 0.7s;
-        }
-
-        @keyframes fadeInUp {
+        @keyframes fadeInScale {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px) scale(0.95);
             }
-
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
         }
 
+        /* Enhanced Section Headers */
         section h2 {
             font-family: 'Orbitron', sans-serif;
-            color: var(--accent);
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            text-shadow: 0 0 10px var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
         }
 
+        section h2::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            margin-left: 1rem;
+        }
 
-.card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 20px; padding: 2rem; box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); backdrop-filter: blur(10px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        
+        section h2 svg {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 10px var(--accent));
+            transition: all 0.4s;
+        }
+
+        .card:hover h2 svg {
+            transform: scale(1.15) rotate(10deg);
+            filter: drop-shadow(0 0 20px var(--accent));
+        }
+
+        /* Enhanced Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(168, 85, 247, 0.25);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
 
         .card:hover {
-            transform: translateY(-8px) scale(1.01);
-            box-shadow: 0 0 35px rgba(168, 85, 247, 0.6);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 50px rgba(168, 85, 247, 0.4);
             border-color: rgba(168, 85, 247, 0.6);
+            background: rgba(255, 255, 255, 0.06);
         }
 
+        /* Enhanced Skills */
         ul.skills {
             list-style: none;
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
 
         ul.skills li {
-            background: rgba(168, 85, 247, 0.1);
-            border: 1px solid rgba(168, 85, 247, 0.4);
-            padding: 0.5rem 1rem;
-            border-radius: 30px;
-            font-size: 0.9rem;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(126, 34, 206, 0.08));
+            border: 2px solid rgba(168, 85, 247, 0.35);
+            padding: 0.7rem 1.3rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
             color: var(--text-light);
-            text-shadow: 0 0 5px rgba(168, 85, 247, 0.6);
-            transition: all 0.3s;
-            animation: popIn 0.4s ease-out both;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: popIn 0.5s ease-out both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        ul.skills li::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(168, 85, 247, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        ul.skills li:hover::before {
+            width: 200px;
+            height: 200px;
         }
 
         ul.skills li:hover {
-            background: rgba(168, 85, 247, 0.2);
-            transform: scale(1.05);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(126, 34, 206, 0.15));
+            border-color: var(--accent);
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
         }
 
         @keyframes popIn {
             0% {
                 opacity: 0;
-                transform: scale(0.5);
+                transform: scale(0.3);
             }
-
+            60% {
+                transform: scale(1.1);
+            }
             100% {
                 opacity: 1;
                 transform: scale(1);
             }
         }
 
-        ul.skills li:nth-child(1) {
-            animation-delay: 0.05s;
-        }
+        ul.skills li:nth-child(1) { animation-delay: 0.05s; }
+        ul.skills li:nth-child(2) { animation-delay: 0.1s; }
+        ul.skills li:nth-child(3) { animation-delay: 0.15s; }
+        ul.skills li:nth-child(4) { animation-delay: 0.2s; }
+        ul.skills li:nth-child(5) { animation-delay: 0.25s; }
+        ul.skills li:nth-child(6) { animation-delay: 0.3s; }
+        ul.skills li:nth-child(7) { animation-delay: 0.35s; }
+        ul.skills li:nth-child(8) { animation-delay: 0.4s; }
 
-        ul.skills li:nth-child(2) {
-            animation-delay: 0.1s;
-        }
-
-        ul.skills li:nth-child(3) {
-            animation-delay: 0.15s;
-        }
-
-        ul.skills li:nth-child(4) {
-            animation-delay: 0.2s;
-        }
-
-        ul.skills li:nth-child(5) {
-            animation-delay: 0.25s;
-        }
-
-        ul.skills li:nth-child(6) {
-            animation-delay: 0.3s;
-        }
-
-        ul.skills li:nth-child(7) {
-            animation-delay: 0.35s;
-        }
-
-        ul.skills li:nth-child(8) {
-            animation-delay: 0.4s;
-        }
-
+        /* Enhanced Project Cards */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
 
         .project-card {
@@ -431,90 +600,129 @@ html::-webkit-scrollbar {
             overflow: hidden;
         }
 
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.1), transparent);
-            transform: rotate(45deg);
-            transition: all 0.6s;
+        .project-card h3 {
+            color: var(--accent-light);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
         }
 
-        .project-card:hover::before {
+        .project-card p {
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Enhanced Buttons */
+        .btn {
+            display: inline-block;
+            color: white;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            border: 2px solid var(--accent);
+            padding: 0.9rem 2.2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
             left: 100%;
         }
 
+        .btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 35px rgba(168, 85, 247, 0.6);
+            border-color: var(--accent-light);
+        }
+
+        .btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Enhanced Timeline */
         .timeline {
-            border-left: 2px solid rgba(168, 85, 247, 0.4);
-            margin-top: 1rem;
-            padding-left: 1.5rem;
+            border-left: 3px solid rgba(168, 85, 247, 0.3);
+            margin-top: 1.5rem;
+            padding-left: 2rem;
         }
 
         .timeline-item {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             position: relative;
-            transition: all 0.3s;
+            transition: all 0.4s;
         }
 
         .timeline-item::before {
             content: '';
             position: absolute;
-            left: -1.65rem;
+            left: -2.2rem;
             top: 6px;
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
             border-radius: 50%;
-            box-shadow: 0 0 15px var(--accent);
-            transition: all 0.3s;
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2), 0 0 20px var(--accent);
+            transition: all 0.4s;
         }
 
         .timeline-item:hover::before {
-            transform: scale(1.5);
-            box-shadow: 0 0 25px var(--accent);
+            transform: scale(1.4);
+            box-shadow: 0 0 0 8px rgba(168, 85, 247, 0.3), 0 0 30px var(--accent);
         }
 
         .timeline-item h3 {
             color: var(--accent-light);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.7rem;
+            font-size: 1.2rem;
         }
 
         .timeline-item p {
             color: var(--text-muted);
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
-        .timeline-item p:first-of-type {
-            font-weight: 600;
-            color: var(--text-light);
-        }
-
+        /* Enhanced Experience Items */
         .experience-item {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: rgba(168, 85, 247, 0.05);
-            border-radius: 15px;
-            border-left: 3px solid var(--accent);
-            transition: all 0.3s;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(126, 34, 206, 0.05));
+            border-radius: 20px;
+            border-left: 4px solid var(--accent);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .experience-item:hover {
-            background: rgba(168, 85, 247, 0.1);
-            transform: translateX(5px);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(126, 34, 206, 0.08));
+            transform: translateX(8px);
+            box-shadow: -4px 0 20px rgba(168, 85, 247, 0.3);
         }
 
         .experience-item h3 {
             color: var(--accent-light);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.7rem;
+            font-size: 1.2rem;
         }
 
         .experience-item .date {
             color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
         }
 
         .experience-item ul {
@@ -524,10 +732,10 @@ html::-webkit-scrollbar {
 
         .experience-item ul li {
             color: var(--text-light);
-            padding-left: 1.5rem;
+            padding-left: 1.8rem;
             position: relative;
-            margin-bottom: 0.5rem;
-            line-height: 1.6;
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
         }
 
         .experience-item ul li::before {
@@ -535,99 +743,38 @@ html::-webkit-scrollbar {
             position: absolute;
             left: 0;
             color: var(--accent);
+            font-size: 1.3rem;
         }
 
-        .btn {
-            display: inline-block;
-            color: var(--accent);
-            border: 2px solid var(--accent);
-            padding: 0.8rem 2rem;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            margin-top: 1rem;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: var(--accent);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn:hover {
-            color: var(--bg-dark);
-            box-shadow: 0 0 20px var(--accent);
-        }
-
-        .btn span {
-            position: relative;
-            z-index: 1;
-        }
-
+        /* Footer */
         footer {
             text-align: center;
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             padding: 3rem 1rem;
-            border-top: 1px solid rgba(168, 85, 247, 0.2);
+            border-top: 2px solid rgba(168, 85, 247, 0.2);
             position: relative;
             z-index: 2;
         }
 
-        .link-list {
-            display: flex;
-            align-items: center;
-            color: var(--accent);
-            text-decoration: none;
-            padding: 0.8rem;
-            margin-bottom: 0.8rem;
-            border-radius: 10px;
-            transition: all 0.3s;
-            border: 1px solid transparent;
-        }
-
-        .link-list:hover {
-            color: var(--text-light);
-            background: rgba(168, 85, 247, 0.1);
-            border-color: rgba(168, 85, 247, 0.3);
-            transform: translateX(5px);
-        }
-
-        .link-list::before {
-            content: '→';
-            margin-right: 0.5rem;
-            transition: transform 0.3s;
-        }
-
-        .link-list:hover::before {
-            transform: translateX(5px);
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
             header h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
             }
 
             .top-nav {
                 top: 1rem;
                 right: 1rem;
                 flex-direction: column;
-                align-items: center;
+                align-items: stretch;
+            }
+
+            .logo {
+                width: 70px;
+                height: 70px;
+                top: 1rem;
+                left: 1rem;
             }
 
             .contact-links {
@@ -635,201 +782,17 @@ html::-webkit-scrollbar {
                 align-items: center;
                 gap: 1rem;
             }
-        }
 
-
-
-
-
-        /* Logo Styles */
-        .logo {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
-            z-index: 1000;
-            width: 180px;
-            height: 80px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: slideInLeft 0.6s ease-out, logoFloat 3s ease-in-out infinite;
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-50px);
+            .card {
+                padding: 1.5rem;
             }
 
-            to {
-                opacity: 1;
-                transform: translateX(0);
+            section h2 {
+                font-size: 1.8rem;
             }
         }
-
-        @keyframes logoFloat {
-
-            0%,
-            100% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .logo:hover {
-            transform: scale(1.2) translateY(-5px);
-            filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.8));
-        }
-
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            transition: transform 0.4s;
-        }
-
-        .logo:hover img {
-            transform: scale(1.05);
-        }
-
-        .header-logo {
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 1.5rem;
-            animation: fadeInScale 0.8s ease-out, logoPulse 4s ease-in-out infinite;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.5);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes logoPulse {
-
-            0%,
-            100% {
-                filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
-                transform: scale(1);
-            }
-
-            50% {
-                filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.9));
-                transform: scale(1.05);
-            }
-        }
-
-        .header-logo:hover {
-            transform: scale(1.2);
-            filter: drop-shadow(0 0 40px rgba(168, 85, 247, 1));
-        }
-
-        .header-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            transition: transform 0.4s;
-        }
-
-        .header-logo:hover img {
-            transform: scale(1.1);
-        }
-
-        @media (max-width: 768px) {
-            .logo {
-                width: 60px;
-                height: 60px;
-                top: 1rem;
-                left: 1rem;
-            }
-
-            .header-logo {
-                width: 120px;
-                height: 120px;
-            }
-        }
-
-
-
-
-
-        .contact-link {
-            color: var(--accent);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-        }
-
-        .contact-link:hover {
-            color: var(--text-light);
-            background: rgba(168, 85, 247, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .contact-link svg {
-            width: 20px;
-            height: 20px;
-            transition: transform 0.3s;
-        }
-
-        .contact-link:hover svg {
-            transform: scale(1.2);
-        }
-
-
-
-
-        section h2 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--accent);
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            text-shadow: 0 0 10px var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        section h2 svg {
-            width: 32px;
-            height: 32px;
-            flex-shrink: 0;
-            filter: drop-shadow(0 0 8px var(--accent));
-            transition: transform 0.3s;
-        }
-
-        .card:hover h2 svg {
-            transform: scale(1.1) rotate(5deg);
-        }
-
-
-.header-subtitle {
-    color: var(--text-muted);
-    font-size: 1.3rem;
-    margin-top: 1rem;
-    letter-spacing: 0.5px;
-    animation: fadeInUp 1s ease-out 0.5s both, glowText 4s ease-in-out infinite;
-}
-
-@keyframes glowText {
-    0%, 100% { text-shadow: 0 0 8px var(--accent-light), 0 0 12px rgba(168,85,247,0.5); }
-    50% { text-shadow: 0 0 18px var(--accent-light), 0 0 28px rgba(168,85,247,0.7); }
-}
     </style>
 </head>
-
 <body>
     <!-- Background Effects -->
     <div class="blob"></div>
@@ -858,26 +821,16 @@ html::-webkit-scrollbar {
         </div>
     </div>
 
-    <!-- Background Effects -->
-    <div class="blob"></div>
-    <div class="blob"></div>
-    <canvas id="particles"></canvas>
-
-    <a href="#" class="logo">
-        <img src="Assets/logo.png" alt="Logo">
-    </a>
 
     <header>
-
         <h1 data-en="Mohend Boubekeur" data-fr="Mohend Boubekeur">Mohend Boubekeur</h1>
-<p class="header-subtitle" data-en="Master 1 Cybersecurity & Networks Student at UBO • Aspiring Systems Architect" 
-   data-fr="Étudiant en Master 1 Cybersécurité & Réseaux à l'UBO • Futur Architecte Systèmes">
-   Master 1 Cybersecurity & Networks Student at UBO • Aspiring Systems Architect
-</p>
+        <p class="header-subtitle" data-en="Master 1 Cybersecurity & Networks Student at UBO • Aspiring Systems Architect" 
+           data-fr="Étudiant en Master 1 Cybersécurité & Réseaux à l'UBO • Futur Architecte Systèmes">
+           Master 1 Cybersecurity & Networks Student at UBO • Aspiring Systems Architect
+        </p>
         <div class="contact-links">
             <a href="mailto:mohend@boubekeur.net" class="contact-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                     <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
@@ -885,15 +838,13 @@ html::-webkit-scrollbar {
             </a>
             <a href="https://www.linkedin.com/in/boubekeur-mohend/" class="contact-link">
                 <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
                 LinkedIn
             </a>
             <a href="https://github.com/mohrnd" class="contact-link">
                 <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                 </svg>
                 Github
             </a>
@@ -903,25 +854,23 @@ html::-webkit-scrollbar {
     <main>
         <section id="about" class="card">
             <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                 </svg>
                 <span data-en="About Me" data-fr="À Propos">About Me</span>
             </h2>
-<p>
-    <span data-en="Passionate about cybersecurity and networks, I am a Master 1 student at UBO, always curious to learn new technologies and discover innovative solutions. I enjoy challenging environments where I can improve my skills and explore ways to design secure, efficient, and scalable infrastructures. Outside of tech, I love mountain biking, tinkering, reading, video editing, and competitive online games!" 
-          data-fr="Passionné par la cybersécurité et les réseaux, je suis étudiant en Master 1 à l'UBO, toujours curieux d'apprendre de nouvelles technologies et de découvrir des solutions innovantes. J'apprécie les environnements stimulants où je peux développer mes compétences et explorer des moyens de concevoir des infrastructures sécurisées, efficaces et évolutives. En dehors de la tech, j'aime le VTT, le bricolage, la lecture, le montage vidéo et les jeux en ligne compétitifs!">
-        Passionate about cybersecurity and networks, I am a Master 1 student at UBO, always curious to learn new technologies and discover innovative solutions. I enjoy challenging environments where I can improve my skills and explore ways to design secure, efficient, and scalable infrastructures. Outside of tech, I love mountain biking, tinkering, reading, video editing, and competitive online games!
-    </span>
-</p>
+            <p>
+                <span data-en="Passionate about cybersecurity and networks, I am a Master 1 student at UBO, always curious to learn new technologies and discover innovative solutions. I enjoy challenging environments where I can improve my skills and explore ways to design secure, efficient, and scalable infrastructures. Outside of tech, I love mountain biking, tinkering, reading, video editing, and competitive online games!" 
+                      data-fr="Passionné par la cybersécurité et les réseaux, je suis étudiant en Master 1 à l'UBO, toujours curieux d'apprendre de nouvelles technologies et de découvrir des solutions innovantes. J'apprécie les environnements stimulants où je peux développer mes compétences et explorer des moyens de concevoir des infrastructures sécurisées, efficaces et évolutives. En dehors de la tech, j'aime le VTT, le bricolage, la lecture, le montage vidéo et les jeux en ligne compétitifs!">
+                    Passionate about cybersecurity and networks, I am a Master 1 student at UBO, always curious to learn new technologies and discover innovative solutions. I enjoy challenging environments where I can improve my skills and explore ways to design secure, efficient, and scalable infrastructures. Outside of tech, I love mountain biking, tinkering, reading, video editing, and competitive online games!
+                </span>
+            </p>
         </section>
 
         <section id="skills" class="card">
             <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
                     <polyline points="2 17 12 22 22 17"></polyline>
                     <polyline points="2 12 12 17 22 12"></polyline>
@@ -945,8 +894,7 @@ html::-webkit-scrollbar {
 
         <section id="education" class="card">
             <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
                     <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
                 </svg>
@@ -954,40 +902,31 @@ html::-webkit-scrollbar {
             </h2>
             <div class="timeline">
                 <div class="timeline-item">
-                    <h3 data-en="Master's in Cybersecurity, Networks and Telecommunications"
-                        data-fr="Master Cybersécurité, Réseaux et Télécommunications">
+                    <h3 data-en="Master's in Cybersecurity, Networks and Telecommunications" data-fr="Master Cybersécurité, Réseaux et Télécommunications">
                         Master's in Cybersecurity, Networks and Telecommunications
                     </h3>
-                    <p data-en="Université de Bretagne Occidentale, Brest, France — 2025-2027 (Expected)"
-                        data-fr="Université de Bretagne Occidentale, Brest, France — 2025-2027 (En cours)">
+                    <p data-en="Université de Bretagne Occidentale, Brest, France — 2025-2027 (Expected)" data-fr="Université de Bretagne Occidentale, Brest, France — 2025-2027 (En cours)">
                         Université de Bretagne Occidentale, Brest, France — 2025-2027 (Expected)
                     </p>
-
                 </div>
                 <div class="timeline-item">
-                    <h3 data-en="Bachelor's in Networks and Telecommunications"
-                        data-fr="Licence Réseaux et Télécommunications">
+                    <h3 data-en="Bachelor's in Networks and Telecommunications" data-fr="Licence Réseaux et Télécommunications">
                         Bachelor's in Networks and Telecommunications
                     </h3>
-                    <p data-en="Université de Bretagne Occidentale, Brest, France — 2024-2025"
-                        data-fr="Université de Bretagne Occidentale, Brest, France — 2024-2025">
+                    <p data-en="Université de Bretagne Occidentale, Brest, France — 2024-2025" data-fr="Université de Bretagne Occidentale, Brest, France — 2024-2025">
                         Université de Bretagne Occidentale, Brest, France — 2024-2025
-                    </p>
-
                     </p>
                     <p data-en="Top of class, Highest Honors" data-fr="Major de promotion, mention Très bien">
                         Top of class, Highest Honors
                     </p>
                 </div>
                 <div class="timeline-item">
-                    <h3 data-en="Bachelor's in Computer Science, Networks and Telecommunications"
-                        data-fr="Licence en Informatique, spécialité Réseaux et Télécommunications">
+                    <h3 data-en="Bachelor's in Computer Science, Networks and Telecommunications" data-fr="Licence en Informatique, spécialité Réseaux et Télécommunications">
                         Bachelor's in Computer Science, Networks and Telecommunications
                     </h3>
-                    <p data-en="USTHB, Bab Ezzouar, Algeria — 2021-2024"
-                        data-fr="USTHB, Bab Ezzouar, Algérie — 2021-2024">
+                    <p data-en="USTHB, Bab Ezzouar, Algeria — 2021-2024" data-fr="USTHB, Bab Ezzouar, Algérie — 2021-2024">
                         USTHB, Bab Ezzouar, Algeria — 2021-2024
-
+                    </p>
                     <p data-en="Top of class, High Honors" data-fr="Major de promotion, mention Bien">
                         Top of class, High Honors
                     </p>
@@ -997,31 +936,24 @@ html::-webkit-scrollbar {
 
         <section id="experience" class="card">
             <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                 </svg>
-                <span data-en="Professional Experience" data-fr="Expérience Professionnelle">Professional
-                    Experience</span>
+                <span data-en="Professional Experience" data-fr="Expérience Professionnelle">Professional Experience</span>
             </h2>
             <div class="experience-item">
-                <h3 data-en="Intrusion/Anomaly Detection with Artificial Intelligence (Internship)"
-                    data-fr="Détection d'Intrusions/Anomalies par Intelligence Artificielle (Stage)">
+                <h3 data-en="Intrusion/Anomaly Detection with Artificial Intelligence (Internship)" data-fr="Détection d'Intrusions/Anomalies par Intelligence Artificielle (Stage)">
                     Intrusion/Anomaly Detection with Artificial Intelligence (Internship)
                 </h3>
-                <div class="date"
-                    data-en="Université de Bretagne Occidentale, Brest, France — July-August 2025 (2 months)"
-                    data-fr="Université de Bretagne Occidentale, Brest, France — Juillet-Août 2025 (2 mois)">
+                <div class="date" data-en="Université de Bretagne Occidentale, Brest, France — July-August 2025 (2 months)" data-fr="Université de Bretagne Occidentale, Brest, France — Juillet-Août 2025 (2 mois)">
                     Université de Bretagne Occidentale, Brest, France — July-August 2025 (2 months)
                 </div>
                 <ul>
-                    <li data-en="Developed a C++ script for real-time automation data export (30ms interval)"
-                        data-fr="Développement d'un script en C++ d'exportation de données d'automate en temps réel (30 ms d'intervalle)">
+                    <li data-en="Developed a C++ script for real-time automation data export (30ms interval)" data-fr="Développement d'un script en C++ d'exportation de données d'automate en temps réel (30 ms d'intervalle)">
                         Developed a C++ script for real-time automation data export (30ms interval)
                     </li>
-                    <li data-en="Created an anomaly detection model with 98% accuracy"
-                        data-fr="Création d'un modèle de détection d'anomalies d'une précision de 98%">
+                    <li data-en="Created an anomaly detection model with 98% accuracy" data-fr="Création d'un modèle de détection d'anomalies d'une précision de 98%">
                         Created an anomaly detection model with 98% accuracy
                     </li>
                 </ul>
@@ -1030,100 +962,89 @@ html::-webkit-scrollbar {
                 <h3 data-en="System Administrator (Internship)" data-fr="Administrateur Systèmes (Stage)">
                     System Administrator (Internship)
                 </h3>
-                <div class="date"
-                    data-en="Algérie Télécom Satellite (ATS), Algiers, Algeria — July-August 2023 (2 months)"
-                    data-fr="Algérie Télécom Satellite (ATS), Alger, Algérie — Juillet-Août 2023 (2 mois)">
+                <div class="date" data-en="Algérie Télécom Satellite (ATS), Algiers, Algeria — July-August 2023 (2 months)" data-fr="Algérie Télécom Satellite (ATS), Alger, Algérie — Juillet-Août 2023 (2 mois)">
                     Algérie Télécom Satellite (ATS), Algiers, Algeria — July-August 2023 (2 months)
                 </div>
                 <ul>
-                    <li data-en="Strengthened security and monitoring of Windows and Linux systems using Wazuh and Ansible"
-                        data-fr="Renforcement de la sécurité et surveillance des systèmes informatiques Windows et Linux en utilisant Wazuh et Ansible">
+                    <li data-en="Strengthened security and monitoring of Windows and Linux systems using Wazuh and Ansible" data-fr="Renforcement de la sécurité et surveillance des systèmes informatiques Windows et Linux en utilisant Wazuh et Ansible">
                         Strengthened security and monitoring of Windows and Linux systems using Wazuh and Ansible
                     </li>
-                    <li data-en="Windows Server user administration and ticket management"
-                        data-fr="Administration des utilisateurs sur Windows Server/Gestion de tickets">
+                    <li data-en="Windows Server user administration and ticket management" data-fr="Administration des utilisateurs sur Windows Server/Gestion de tickets">
                         Windows Server user administration and ticket management
                     </li>
-                    <li data-en="Deployment and administration of Kubernetes clusters"
-                        data-fr="Déploiement et administration de clusters Kubernetes">
+                    <li data-en="Deployment and administration of Kubernetes clusters" data-fr="Déploiement et administration de clusters Kubernetes">
                         Deployment and administration of Kubernetes clusters
                     </li>
                 </ul>
             </div>
         </section>
 
- <section id="projects" class="card">
-    <h2>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="16 18 22 12 16 6"></polyline>
-            <polyline points="8 6 2 12 8 18"></polyline>
-        </svg>
-        <span data-en="Projects" data-fr="Projets">Projects</span>
-    </h2>
-    <div class="projects-grid">
-        <div class="card project-card">
-    <h3 data-en="Web Hosting Service Architecture" data-fr="Architecture de Service d’Hébergement Web">
-        Web Hosting Service Architecture
-    </h3>
-    <p data-en="Secure web hosting backend built with Spring Boot 3, Java 17, and MySQL. Features JWT authentication, role-based access control, Dockerized deployment, and Jenkins CI/CD pipeline. Includes rate limiting, encryption, and incident simulation for resilience testing."
-       data-fr="Backend d’hébergement web sécurisé développé avec Spring Boot 3, Java 17 et MySQL. Intègre l’authentification JWT, le contrôle d’accès par rôles, le déploiement Dockerisé et un pipeline CI/CD Jenkins. Comprend la limitation de débit, le chiffrement et la simulation d’incidents pour tester la résilience.">
-        Secure web hosting backend built with Spring Boot 3, Java 17, and MySQL. Features JWT authentication, role-based access control, Dockerized deployment, and Jenkins CI/CD pipeline. Includes rate limiting, encryption, and incident simulation for resilience testing.
-    </p>
-    <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
-        <a href="https://github.com/mohrnd/Web-Hosting-Service" target="_blank" class="btn">
-            <span data-en="GitHub Repo" data-fr="Dépôt GitHub">GitHub Repo</span>
-        </a>
-        <a href="https://www.linkedin.com/posts/boubekeur-mohend_designing-and-deploying-a-secure-web-hosting-activity-7389256707756982272-hGsk?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEv9fkQBezCTKywELUv4Jlm3AWBnrd7xv-k" target="_blank" class="btn">
-            <span data-en="LinkedIn Post" data-fr="Publication LinkedIn">LinkedIn Post</span>
-        </a>
-    </div>
-</div>
+        <section id="projects" class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                <span data-en="Projects" data-fr="Projets">Projects</span>
+            </h2>
+            <div class="projects-grid">
+                <div class="card project-card">
+                    <h3 data-en="Web Hosting Service Architecture" data-fr="Architecture de Service d'Hébergement Web">
+                        Web Hosting Service Architecture
+                    </h3>
+                    <p data-en="Secure web hosting backend built with Spring Boot 3, Java 17, and MySQL. Features JWT authentication, role-based access control, Dockerized deployment, and Jenkins CI/CD pipeline. Includes rate limiting, encryption, and incident simulation for resilience testing." data-fr="Backend d'hébergement web sécurisé développé avec Spring Boot 3, Java 17 et MySQL. Intègre l'authentification JWT, le contrôle d'accès par rôles, le déploiement Dockerisé et un pipeline CI/CD Jenkins. Comprend la limitation de débit, le chiffrement et la simulation d'incidents pour tester la résilience.">
+                        Secure web hosting backend built with Spring Boot 3, Java 17, and MySQL. Features JWT authentication, role-based access control, Dockerized deployment, and Jenkins CI/CD pipeline. Includes rate limiting, encryption, and incident simulation for resilience testing.
+                    </p>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                        <a href="https://github.com/mohrnd/Web-Hosting-Service" target="_blank" class="btn">
+                            <span data-en="GitHub Repo" data-fr="Dépôt GitHub">GitHub Repo</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/boubekeur-mohend_designing-and-deploying-a-secure-web-hosting-activity-7389256707756982272-hGsk" target="_blank" class="btn">
+                            <span data-en="LinkedIn Post" data-fr="Publication LinkedIn">LinkedIn Post</span>
+                        </a>
+                    </div>
+                </div>
 
-        <div class="card project-card">
-            <h3 data-en="Cloud Deployments (AWS)" data-fr="Déploiements Cloud (AWS)">Cloud Deployments (AWS)</h3>
-            <p data-en="Secure web application with DynamoDB, EC2, RDS, S3, WAF, IAM and auto-scaling. \n Automated workflow for Active Directory user creation and WorkMail accounts via API Gateway, Lambda, SES and WorkMail." 
-               data-fr="Application web sécurisée avec DynamoDB, EC2, RDS, S3, WAF, IAM et auto-scaling. Workflow automatisé de création d'utilisateurs Active Directory et de comptes WorkMail via API Gateway, Lambda, SES et WorkMail.">
-                Secure web application with DynamoDB, EC2, RDS, S3, WAF, IAM and auto-scaling. Automated workflow for Active Directory user creation and WorkMail accounts via API Gateway, Lambda, SES and WorkMail.
-            </p>
-            <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
-                <a href="https://www.linkedin.com/feed/update/urn:li:activity:7280145757830070273/" target="_blank" class="btn"><span data-en="Web App" data-fr="App Web">Web App</span></a>
-                <a href="https://www.linkedin.com/feed/update/urn:li:activity:7278098791864455168/" target="_blank" class="btn"><span data-en="WorkMail Flow" data-fr="Flux WorkMail">WorkMail Flow</span></a>
+                <div class="card project-card">
+                    <h3 data-en="Cloud Deployments (AWS)" data-fr="Déploiements Cloud (AWS)">Cloud Deployments (AWS)</h3>
+                    <p data-en="Secure web application with DynamoDB, EC2, RDS, S3, WAF, IAM and auto-scaling. Automated workflow for Active Directory user creation and WorkMail accounts via API Gateway, Lambda, SES and WorkMail." data-fr="Application web sécurisée avec DynamoDB, EC2, RDS, S3, WAF, IAM et auto-scaling. Workflow automatisé de création d'utilisateurs Active Directory et de comptes WorkMail via API Gateway, Lambda, SES et WorkMail.">
+                        Secure web application with DynamoDB, EC2, RDS, S3, WAF, IAM and auto-scaling. Automated workflow for Active Directory user creation and WorkMail accounts via API Gateway, Lambda, SES and WorkMail.
+                    </p>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                        <a href="https://www.linkedin.com/feed/update/urn:li:activity:7280145757830070273/" target="_blank" class="btn"><span data-en="Web App" data-fr="App Web">Web App</span></a>
+                        <a href="https://www.linkedin.com/feed/update/urn:li:activity:7278098791864455168/" target="_blank" class="btn"><span data-en="WorkMail Flow" data-fr="Flux WorkMail">WorkMail Flow</span></a>
+                    </div>
+                </div>
+                
+                <div class="card project-card">
+                    <h3 data-en="REMT - Remote Execution and Monitoring Toolkit" data-fr="REMT - Logiciel de Gestion à Distance">REMT - Remote Execution and Monitoring Toolkit</h3>
+                    <p data-en="Rocky Linux server administration software in Python (15k lines), integrating SSH, file transfer, logs, task scheduling, script/password management and SNMP monitoring." data-fr="Logiciel d'administration de serveurs Rocky Linux en Python (15k lignes), intégrant SSH, transfert de fichiers, logs, planification de tâches, gestion de scripts/mots de passe et monitoring SNMP.">
+                        Rocky Linux server administration software in Python (15k lines), integrating SSH, file transfer, logs, task scheduling, script/password management and SNMP monitoring.
+                    </p>
+                    <a href="https://github.com/mohrnd/REMT" target="_blank" class="btn"><span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
+                </div>
+                
+                <div class="card project-card">
+                    <h3 data-en="DHCP Configuration Automation Tool" data-fr="Outil d'Automatisation de la Configuration DHCP">DHCP Configuration Automation Tool</h3>
+                    <p data-en="C++ tool for automatically configuring a DHCP server remotely via SSH." data-fr="Outil en C++ permettant de configurer automatiquement un serveur DHCP à distance via SSH.">
+                        C++ tool for automatically configuring a DHCP server remotely via SSH.
+                    </p>
+                    <a href="https://github.com/mohrnd/DHCP-configurator" target="_blank" class="btn"><span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
+                </div>
+                
+                <div class="card project-card">
+                    <h3 data-en="Tram Subscription Management Portal" data-fr="Portail de Gestion des Abonnements au Tramway">Tram Subscription Management Portal</h3>
+                    <p data-en="Subscription management system (purchase, renewal) in PHP/MySQL with intuitive interface and multi-role management (customers, agents, administrators)." data-fr="Système de gestion d'abonnements (achat, renouvellement) en PHP/MySQL avec interface intuitive et gestion multi-rôles (clients, agents, administrateurs).">
+                        Subscription management system (purchase, renewal) in PHP/MySQL with intuitive interface and multi-role management (customers, agents, administrators).
+                    </p>
+                    <a href="https://github.com/mohrnd/Subscription-Manager-web-application" target="_blank" class="btn"><span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
+                </div>
             </div>
-        </div>
-        
-        <div class="card project-card">
-            <h3 data-en="REMT - Remote Execution and Monitoring Toolkit" data-fr="REMT - Logiciel de Gestion à Distance">REMT - Remote Execution and Monitoring Toolkit</h3>
-            <p data-en="Rocky Linux server administration software in Python (15k lines), integrating SSH, file transfer, logs, task scheduling, script/password management and SNMP monitoring." 
-               data-fr="Logiciel d'administration de serveurs Rocky Linux en Python (15k lignes), intégrant SSH, transfert de fichiers, logs, planification de tâches, gestion de scripts/mots de passe et monitoring SNMP.">
-                Rocky Linux server administration software in Python (15k lines), integrating SSH, file transfer, logs, task scheduling, script/password management and SNMP monitoring.
-            </p>
-            <a href="https://github.com/mohrnd/REMT" target="_blank" class="btn"><span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
-        </div>
-        
-        <div class="card project-card">
-            <h3 data-en="DHCP Configuration Automation Tool" data-fr="Outil d'Automatisation de la Configuration DHCP">DHCP Configuration Automation Tool</h3>
-            <p data-en="C++ tool for automatically configuring a DHCP server remotely via SSH." 
-               data-fr="Outil en C++ permettant de configurer automatiquement un serveur DHCP à distance via SSH.">
-                C++ tool for automatically configuring a DHCP server remotely via SSH.
-            </p>
-            <a href="https://github.com/mohrnd/DHCP-configurator" target="_blank" class="btn"><span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
-        </div>
-        
-        <div class="card project-card">
-            <h3 data-en="Tram Subscription Management Portal" data-fr="Portail de Gestion des Abonnements au Tramway">Tram Subscription Management Portal</h3>
-            <p data-en="Subscription management system (purchase, renewal) in PHP/MySQL with intuitive interface and multi-role management (customers, agents, administrators)." 
-               data-fr="Système de gestion d'abonnements (achat, renouvellement) en PHP/MySQL avec interface intuitive et gestion multi-rôles (clients, agents, administrateurs).">
-                Subscription management system (purchase, renewal) in PHP/MySQL with intuitive interface and multi-role management (customers, agents, administrators).
-            </p>
-            <a href="https://github.com/mohrnd/Subscription-Manager-web-application" target="_blank" class="btn"><span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
-        </div>
-    </div>
-</section>
+        </section>
 
         <section id="certifications" class="card">
             <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="8" r="7"></circle>
                     <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
                 </svg>
@@ -1142,16 +1063,14 @@ html::-webkit-scrollbar {
 
         <section id="cv" class="card">
             <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="7 10 12 15 17 10"></polyline>
                     <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
                 <span data-en="Download CV" data-fr="Télécharger le CV">Download CV</span>
             </h2>
-            <a href="Assets/CV Mohend BOUBEKEUR.pdf" class="btn"><span data-en="View My Full CV" data-fr="Voir mon CV complet">View My Full
-                    CV</span></a>
+            <a href="Assets/CV Mohend BOUBEKEUR.pdf" class="btn"><span data-en="View My Full CV" data-fr="Voir mon CV complet">View My Full CV</span></a>
         </section>
     </main>
 
@@ -1161,18 +1080,15 @@ html::-webkit-scrollbar {
 
     <script>
         function switchLang(lang) {
-            // Toggle active class
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
             });
 
-            // Switch all elements with data-en / data-fr
             document.querySelectorAll('[data-en]').forEach(el => {
                 el.textContent = (lang === 'en') ? el.getAttribute('data-en') : el.getAttribute('data-fr');
             });
         }
 
-        // Particle animation
         const canvas = document.getElementById('particles');
         const ctx = canvas.getContext('2d');
 
@@ -1185,15 +1101,16 @@ html::-webkit-scrollbar {
         });
 
         const particles = [];
-        const particleCount = 80;
+        const particleCount = 100;
 
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.radius = Math.random() * 2 + 1;
+                this.vx = (Math.random() - 0.5) * 0.6;
+                this.vy = (Math.random() - 0.5) * 0.6;
+                this.radius = Math.random() * 2.5 + 1;
+                this.opacity = Math.random() * 0.5 + 0.3;
             }
 
             update() {
@@ -1207,7 +1124,7 @@ html::-webkit-scrollbar {
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(168, 85, 247, 0.6)';
+                ctx.fillStyle = `rgba(168, 85, 247, ${this.opacity})`;
                 ctx.fill();
             }
         }
@@ -1224,17 +1141,16 @@ html::-webkit-scrollbar {
                 particle.draw();
             });
 
-            // Draw connections
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    if (distance < 150) {
+                    if (distance < 120) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 * (1 - distance / 150)})`;
-                        ctx.lineWidth = 0.5;
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.25 * (1 - distance / 120)})`;
+                        ctx.lineWidth = 1;
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
                         ctx.stroke();
@@ -1248,21 +1164,4 @@ html::-webkit-scrollbar {
         animate();
     </script>
 </body>
-
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
