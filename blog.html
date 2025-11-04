@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Coming Soon | Mohend Boubekeur</title>
+    <link rel="icon" href="/Assets/bimi-logo.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
+        :root {
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --bg-dark: #0b0014;
+            --text-light: #f2e9ff;
+            --text-muted: #b69cd9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-light);
+            background: var(--bg-dark);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Background Effects */
+        .blob {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(160px);
+            opacity: 0.5;
+            z-index: 0;
+            animation: moveBlobs 25s infinite ease-in-out alternate;
+        }
+
+        .blob:nth-child(1) {
+            background: #a855f7;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .blob:nth-child(2) {
+            background: #7e22ce;
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+
+        @keyframes moveBlobs {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(100px, -80px) scale(1.2);
+            }
+
+            100% {
+                transform: translate(-80px, 100px) scale(1);
+            }
+        }
+
+        canvas#particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            backdrop-filter: blur(10px);
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .back-btn:hover {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: var(--accent);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .back-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Coming Soon Container */
+        .coming-soon-container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+        }
+
+        .coming-soon-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-shadow: 0 0 30px var(--accent), 0 0 60px var(--accent);
+            animation: floatTitle 3s ease-in-out infinite, pulseGlow 4s infinite ease-in-out, fadeInScale 1s ease-out;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes floatTitle {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                text-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent);
+            }
+
+            50% {
+                text-shadow: 0 0 40px var(--accent), 0 0 80px var(--accent), 0 0 120px var(--accent);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .coming-soon-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .coming-soon-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            animation: rotateIcon 20s linear infinite, fadeIn 1s ease-out 0.6s both;
+        }
+
+        @keyframes rotateIcon {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .coming-soon-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 20px var(--accent));
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+            animation: fadeIn 1s ease-out 0.9s both;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+            border-color: var(--accent);
+        }
+
+        .feature-card svg {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+
+        .feature-card h3 {
+            color: var(--accent-light);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .coming-soon-title {
+                font-size: 3rem;
+            }
+
+            .coming-soon-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .back-btn {
+                top: 1rem;
+                left: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Effects -->
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <canvas id="particles"></canvas>
+
+    <!-- Back Button -->
+    <a href="index.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Back to Portfolio</span>
+    </a>
+
+    <!-- Coming Soon Content -->
+    <div class="coming-soon-container">
+        <div class="coming-soon-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+        </div>
+
+        <h1 class="coming-soon-title">Coming Soon</h1>
+        
+        <p class="coming-soon-subtitle">
+            Blog & Tutorials are currently under construction.<br>
+            Stay tuned for exciting cybersecurity and networking content!
+        </p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                    <polyline points="17 2 12 7 7 2"></polyline>
+                </svg>
+                <h3>Technical Guides</h3>
+                <p>Step-by-step tutorials on network configuration and security</p>
+            </div>
+
+            <div class="feature-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                <h3>Cloud Projects</h3>
+                <p>AWS deployments and infrastructure automation</p>
+            </div>
+
+            <div class="feature-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <h3>Security Tips</h3>
+                <p>Best practices and insights from real-world experiences</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Particle animation
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2 + 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(168, 85, 247, 0.6)';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // Draw connections
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+
+</html>
