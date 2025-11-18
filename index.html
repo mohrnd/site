@@ -872,6 +872,30 @@
 .project-goal strong {
     color: var(--accent-light);
 }
+
+        .project-preview {
+margin-top: 1.5rem;             
+position: relative;             
+overflow: hidden;             
+border-radius: 15px;             
+border: 2px solid rgba(168, 85, 247, 0.3);             
+transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);         
+}          
+.project-preview:hover {             
+border-color: var(--accent);             
+box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);             
+transform: translateY(-5px);         
+}
+
+.project-preview img {             
+width: 100%;             
+height: auto;             
+display: block;             
+transition: transform 0.4s;         
+}          
+.project-preview:hover img {             
+transform: scale(1.05);         
+}
     </style>
 </head>
 <body>
@@ -1082,7 +1106,7 @@
                 <ul>
                     <li data-en="Web interface with password authentication" data-fr="Interface web avec authentification par mot de passe">Web interface with password authentication</li>
                     <li data-en="Power on/off/reboot via iDRAC API" data-fr="Allumage/extinction/redémarrage via l'API iDRAC">Power on/off/reboot via iDRAC API</li>
-                    <li data-en="Wake-on-LAN for gaming PC" data-fr="Wake-on-LAN pour PC gaming">Wake-on-LAN for gaming PC</li>
+                    <li data-en="Wake-on-LAN for Dell Poweredge R630" data-fr="Wake-on-LAN pour Dell Poweredge R630">Wake-on-LAN for Dell Poweredge R630</li>
                 </ul>
                 
                 <h4 data-en="Monitoring Dashboard:" data-fr="Tableau de Bord de Surveillance :">Monitoring Dashboard:</h4>
@@ -1099,6 +1123,9 @@
                     <li data-en="Auto-shutdown when idle (configurable thresholds)" data-fr="Arrêt automatique en cas d'inactivité (seuils configurables)">Auto-shutdown when idle (configurable thresholds)</li>
                     <li data-en="Power usage tracking and cost estimation" data-fr="Suivi de la consommation électrique et estimation des coûts">Power usage tracking and cost estimation</li>
                 </ul>
+                
+                <h4 data-en="Little preview:" data-fr="Petit aperçu: :">Little preview:</h4>
+                <img src="Assetes/Wakeserver-preview.png" alt="Wakeserver preview" class="project-preview">
             </div>
         </div>
         <div class="card project-card">
@@ -1312,6 +1339,7 @@
     </script>
 </body>
 </html>
+
 
 
 
