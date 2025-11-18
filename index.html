@@ -790,7 +790,94 @@
             section h2 {
                 font-size: 1.8rem;
             }
+        
+            
         }
+
+        #projects-in-progress {
+    background: #f8f9fa;
+    padding: 60px 20px;
+}
+
+.project-card {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.project-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.5em;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-waiting {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.project-description {
+    color: #555;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.project-details h4 {
+    color: #34495e;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.project-details ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.project-details li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.project-goal {
+    background: #e8f4f8;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 20px;
+    border-left: 4px solid #3498db;
+}
+
+@media (max-width: 768px) {
+    .project-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
     </style>
 </head>
 <body>
@@ -979,6 +1066,68 @@
             </div>
         </section>
 
+        <section id="projects-in-progress" class="section">
+    <div class="container">
+        <h2 class="section-title">Projects in Progress</h2>
+        
+        <div class="project-card">
+            <div class="project-header">
+                <h3>Wake Server & VPN Endpoint for Homelab</h3>
+            </div>
+            <p class="project-description">
+                Infrastructure control panel for managing my homelab environment remotely.
+            </p>
+            <div class="project-details">
+                <h4>Core Features:</h4>
+                <ul>
+                    <li>Web interface with password authentication</li>
+                    <li>Power on/off/reboot via iDRAC API</li>
+                    <li>Wake-on-LAN for gaming PC</li>
+                </ul>
+                
+                <h4>Monitoring Dashboard:</h4>
+                <ul>
+                    <li>System health (CPU temps, power draw, fan speeds)</li>
+                    <li>Quick stats showing what's running on each machine</li>
+                    <li>Uptime tracking</li>
+                    <li>Video monitoring and noise level checks</li>
+                </ul>
+                
+                <h4>Automation:</h4>
+                <ul>
+                    <li>Scheduled power management (auto-on/off based on time)</li>
+                    <li>Auto-shutdown when idle (configurable thresholds)</li>
+                    <li>Power usage tracking and cost estimation</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="project-card">
+            <div class="project-header">
+                <h3>AWHess (AWS Clone in My Style)</h3>
+            </div>
+            <p class="project-description">
+                A large-scale personal cloud infrastructure project designed to deeply learn OpenStack by building an AWS-equivalent platform from the ground up.
+            </p>
+            <div class="project-details">
+                <h4>Core Services:</h4>
+                <ul>
+                    <li><strong>AWHESS Compute</strong> - Virtual machines, auto-scaling groups</li>
+                    <li><strong>AWHESS Functions</strong> - Serverless execution, scheduled & event-driven architecture</li>
+                    <li><strong>AWHESS Storage</strong> - Object storage (S3 equivalent), block storage (EBS equivalent), snapshots & backups</li>
+                    <li><strong>AWHESS Network</strong> - VPC, subnets, routing tables, security groups, load balancers</li>
+                    <li><strong>AWHESS Database</strong> - Managed PostgreSQL/MySQL/MongoDB, automated backups, read replicas</li>
+                    <li><strong>AWHESS Monitoring</strong> - Metrics, log aggregation, alarms, dashboards (CloudWatch equivalent)</li>
+                </ul>
+                
+                <p class="project-goal">
+                    <strong>Project Goal:</strong> Master OpenStack through hands-on implementation of a complete cloud platform, understanding distributed systems, virtualization, and cloud architecture at scale.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
         <section id="projects" class="card">
             <h2>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1165,4 +1314,5 @@
     </script>
 </body>
 </html>
+
 
