@@ -757,6 +757,136 @@
             z-index: 2;
         }
 
+        /* Projects in Progress Specific Styles */
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 2px solid;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        .status-waiting {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
+        .project-description {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .project-details h4 {
+            color: var(--accent-light);
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .project-details ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+
+        .project-details li {
+            color: var(--text-light);
+            padding-left: 1.8rem;
+            position: relative;
+            margin-bottom: 0.7rem;
+            line-height: 1.7;
+        }
+
+        .project-details li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+
+        .project-goal {
+            background: rgba(168, 85, 247, 0.1);
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            border-left: 4px solid var(--accent);
+            color: var(--text-light);
+        }
+
+        .project-goal strong {
+            color: var(--accent-light);
+        }
+
+        /* Project Preview Image Styles */
+        .project-preview {
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .project-preview:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .preview-label {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.5);
+            z-index: 10;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .project-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.4s;
+        }
+
+        .project-preview:hover img {
+            transform: scale(1.05);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             header h1 {
@@ -790,112 +920,7 @@
             section h2 {
                 font-size: 1.8rem;
             }
-        
-            
         }
-
-/* Projects in Progress Specific Styles */
-.project-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 2px solid;
-}
-
-.status-active {
-    background: rgba(34, 197, 94, 0.15);
-    color: #4ade80;
-    border-color: rgba(34, 197, 94, 0.4);
-}
-
-.status-waiting {
-    background: rgba(251, 191, 36, 0.15);
-    color: #fbbf24;
-    border-color: rgba(251, 191, 36, 0.4);
-}
-
-.project-description {
-    color: var(--text-muted);
-    font-size: 1.05rem;
-    margin-bottom: 1.5rem;
-    line-height: 1.7;
-}
-
-.project-details h4 {
-    color: var(--accent-light);
-    margin-top: 1.5rem;
-    margin-bottom: 0.8rem;
-    font-size: 1.1rem;
-}
-
-.project-details ul {
-    list-style: none;
-    padding-left: 0;
-    margin-bottom: 1rem;
-}
-
-.project-details li {
-    color: var(--text-light);
-    padding-left: 1.8rem;
-    position: relative;
-    margin-bottom: 0.7rem;
-    line-height: 1.7;
-}
-
-.project-details li::before {
-    content: '▹';
-    position: absolute;
-    left: 0;
-    color: var(--accent);
-    font-size: 1.3rem;
-}
-
-.project-goal {
-    background: rgba(168, 85, 247, 0.1);
-    padding: 1.2rem;
-    border-radius: 12px;
-    margin-top: 1.5rem;
-    border-left: 4px solid var(--accent);
-    color: var(--text-light);
-}
-
-.project-goal strong {
-    color: var(--accent-light);
-}
-
-        .project-preview {
-margin-top: 1.5rem;             
-position: relative;             
-overflow: hidden;             
-border-radius: 15px;             
-border: 2px solid rgba(168, 85, 247, 0.3);             
-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);         
-}          
-.project-preview:hover {             
-border-color: var(--accent);             
-box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);             
-transform: translateY(-5px);         
-}
-
-.project-preview img {             
-width: 100%;             
-height: auto;             
-display: block;             
-transition: transform 0.4s;         
-}          
-.project-preview:hover img {             
-transform: scale(1.05);         
-}
     </style>
 </head>
 <body>
@@ -925,7 +950,6 @@ transform: scale(1.05);
             <button class="lang-btn" onclick="switchLang('fr')">FR</button>
         </div>
     </div>
-
 
     <header>
         <h1 data-en="Mohend Boubekeur" data-fr="Mohend Boubekeur">Mohend Boubekeur</h1>
@@ -1084,75 +1108,79 @@ transform: scale(1.05);
             </div>
         </section>
 
-<section id="projects-in-progress" class="card">
-    <h2>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-        </svg>
-        <span data-en="Projects in Progress" data-fr="Projets en Cours">Projects in Progress</span>
-    </h2>
-    
-    <div class="projects-grid">
-        <div class="card project-card">
-            <div class="project-header">
-                <h3 data-en="Wake Server & VPN Endpoint for Homelab" data-fr="Serveur Wake & Point d'Accès VPN pour Homelab">Wake Server & VPN Endpoint for Homelab</h3>
+        <section id="projects-in-progress" class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span data-en="Projects in Progress" data-fr="Projets en Cours">Projects in Progress</span>
+            </h2>
+            
+            <div class="projects-grid">
+                <div class="card project-card">
+                    <div class="project-header">
+                        <h3 data-en="Wake Server & VPN Endpoint for Homelab" data-fr="Serveur Wake & Point d'Accès VPN pour Homelab">Wake Server & VPN Endpoint for Homelab</h3>
+                    </div>
+                    <p class="project-description" data-en="Infrastructure control panel for managing my homelab environment remotely. Deployed on Raspberry Pi 4." data-fr="Panneau de contrôle d'infrastructure pour gérer mon environnement homelab à distance. Déployé sur Raspberry Pi 4.">
+                        Infrastructure control panel for managing my homelab environment remotely. Deployed on Raspberry Pi 4.
+                    </p>
+                    <div class="project-details">
+                        <h4 data-en="Core Features:" data-fr="Fonctionnalités Principales :">Core Features:</h4>
+                        <ul>
+                            <li data-en="Web interface with password authentication" data-fr="Interface web avec authentification par mot de passe">Web interface with password authentication</li>
+                            <li data-en="Power on/off/reboot via iDRAC API" data-fr="Allumage/extinction/redémarrage via l'API iDRAC">Power on/off/reboot via iDRAC API</li>
+                            <li data-en="Wake-on-LAN for gaming PC" data-fr="Wake-on-LAN pour PC gaming">Wake-on-LAN for gaming PC</li>
+                        </ul>
+                        
+                        <h4 data-en="Monitoring Dashboard:" data-fr="Tableau de Bord de Surveillance :">Monitoring Dashboard:</h4>
+                        <ul>
+                            <li data-en="System health (CPU temps, power draw, fan speeds)" data-fr="État du système (températures CPU, consommation, vitesses ventilateurs)">System health (CPU temps, power draw, fan speeds)</li>
+                            <li data-en="Quick stats showing what's running on each machine" data-fr="Statistiques rapides montrant ce qui fonctionne sur chaque machine">Quick stats showing what's running on each machine</li>
+                            <li data-en="Uptime tracking" data-fr="Suivi du temps de fonctionnement">Uptime tracking</li>
+                            <li data-en="Video monitoring and noise level checks" data-fr="Surveillance vidéo et vérification des niveaux sonores">Video monitoring and noise level checks</li>
+                        </ul>
+                        
+                        <h4 data-en="Automation:" data-fr="Automatisation :">Automation:</h4>
+                        <ul>
+                            <li data-en="Scheduled power management (auto-on/off based on time)" data-fr="Gestion de l'alimentation programmée (allumage/extinction automatique)">Scheduled power management (auto-on/off based on time)</li>
+                            <li data-en="Auto-shutdown when idle (configurable thresholds)" data-fr="Arrêt automatique en cas d'inactivité (seuils configurables)">Auto-shutdown when idle (configurable thresholds)</li>
+                            <li data-en="Power usage tracking and cost estimation" data-fr="Suivi de la consommation électrique et estimation des coûts">Power usage tracking and cost estimation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="project-preview">
+                        <span class="preview-label" data-en="Little Sneak Peek 👀" data-fr="Petit Aperçu 👀">Little Sneak Peek 👀</span>
+                        <img src="Assets/Wake-server-preview.png" alt="Wake Server Preview">
+                    </div>
+                </div>
+
+                <div class="card project-card">
+                    <div class="project-header">
+                        <h3 data-en="AWHESS (AWS Clone in My Style)" data-fr="AWHESS (Clone AWS à ma Façon)">AWHESS (AWS Clone in My Style)</h3>
+                    </div>
+                    <p class="project-description" data-en="A large-scale personal cloud infrastructure project designed to deeply learn OpenStack by building an AWS-equivalent platform from the ground up. Will be deployed on my Dell PowerEdge R630." data-fr="Un projet d'infrastructure cloud personnel à grande échelle conçu pour apprendre OpenStack en profondeur en construisant une plateforme équivalente à AWS. Sera déployé sur mon Dell PowerEdge R630.">
+                        A large-scale personal cloud infrastructure project designed to deeply learn OpenStack by building an AWS-equivalent platform from the ground up. Will be deployed on my Dell PowerEdge R630.
+                    </p>
+                    <div class="project-details">
+                        <h4 data-en="Core Services:" data-fr="Services Principaux :">Core Services:</h4>
+                        <ul>
+                            <li><strong>AWHESS Compute</strong> - <span data-en="Virtual machines, auto-scaling groups (OpenStack Nova)" data-fr="Machines virtuelles, groupes d'auto-scaling (OpenStack Nova)">Virtual machines, auto-scaling groups (OpenStack Nova)</span></li>
+                            <li><strong>AWHESS Functions</strong> - <span data-en="Serverless execution with Spring Boot, HTTP triggers, scheduled & event-driven architecture" data-fr="Exécution serverless avec Spring Boot, déclencheurs HTTP, architecture événementielle et programmée">Serverless execution with Spring Boot, HTTP triggers, scheduled & event-driven architecture</span></li>
+                            <li><strong>AWHESS Storage</strong> - <span data-en="Object storage (S3 equivalent), block storage (EBS equivalent), snapshots & backups" data-fr="Stockage objet (équivalent S3), stockage bloc (équivalent EBS), snapshots et sauvegardes">Object storage (S3 equivalent), block storage (EBS equivalent), snapshots & backups</span></li>
+                            <li><strong>AWHESS Network</strong> - <span data-en="VPC, subnets, routing tables, security groups, load balancers (OpenStack Neutron)" data-fr="VPC, sous-réseaux, tables de routage, groupes de sécurité, répartiteurs de charge (OpenStack Neutron)">VPC, subnets, routing tables, security groups, load balancers (OpenStack Neutron)</span></li>
+                            <li><strong>AWHESS Database</strong> - <span data-en="Managed PostgreSQL/MySQL, automated backups, read replicas" data-fr="PostgreSQL/MySQL managés, sauvegardes automatisées, réplicas de lecture">Managed PostgreSQL/MySQL, automated backups, read replicas</span></li>
+                            <li><strong>AWHESS Monitoring</strong> - <span data-en="Metrics, log aggregation, alarms, dashboards (CloudWatch equivalent)" data-fr="Métriques, agrégation de logs, alarmes, tableaux de bord (équivalent CloudWatch)">Metrics, log aggregation, alarms, dashboards (CloudWatch equivalent)</span></li>
+                        </ul>
+                        
+                        <p class="project-goal">
+                            <strong data-en="Project Goal:" data-fr="Objectif du Projet :">Project Goal:</strong> <span data-en="Master OpenStack through hands-on implementation of a complete cloud platform, understanding distributed systems, virtualization, and cloud architecture at scale." data-fr="Maîtriser OpenStack par la mise en œuvre pratique d'une plateforme cloud complète, en comprenant les systèmes distribués, la virtualisation et l'architecture cloud à grande échelle.">Master OpenStack through hands-on implementation of a complete cloud platform, understanding distributed systems, virtualization, and cloud architecture at scale.</span>
+                        </p>
+                    </div>
+                </div>
             </div>
-            <p class="project-description" data-en="Infrastructure control panel for managing my homelab environment remotely. Deployed on Raspberry Pi 4." data-fr="Panneau de contrôle d'infrastructure pour gérer mon environnement homelab à distance. Déployé sur Raspberry Pi 4.">
-                Infrastructure control panel for managing my homelab environment remotely. Deployed on Raspberry Pi 4.
-            </p>
-            <div class="project-details">
-                <h4 data-en="Core Features:" data-fr="Fonctionnalités Principales :">Core Features:</h4>
-                <ul>
-                    <li data-en="Web interface with password authentication" data-fr="Interface web avec authentification par mot de passe">Web interface with password authentication</li>
-                    <li data-en="Power on/off/reboot via iDRAC API" data-fr="Allumage/extinction/redémarrage via l'API iDRAC">Power on/off/reboot via iDRAC API</li>
-                    <li data-en="Wake-on-LAN for Dell Poweredge R630" data-fr="Wake-on-LAN pour Dell Poweredge R630">Wake-on-LAN for Dell Poweredge R630</li>
-                </ul>
-                
-                <h4 data-en="Monitoring Dashboard:" data-fr="Tableau de Bord de Surveillance :">Monitoring Dashboard:</h4>
-                <ul>
-                    <li data-en="System health (CPU temps, power draw, fan speeds)" data-fr="État du système (températures CPU, consommation, vitesses ventilateurs)">System health (CPU temps, power draw, fan speeds)</li>
-                    <li data-en="Quick stats showing what's running on each machine" data-fr="Statistiques rapides montrant ce qui fonctionne sur chaque machine">Quick stats showing what's running on each machine</li>
-                    <li data-en="Uptime tracking" data-fr="Suivi du temps de fonctionnement">Uptime tracking</li>
-                    <li data-en="Video monitoring and noise level checks" data-fr="Surveillance vidéo et vérification des niveaux sonores">Video monitoring and noise level checks</li>
-                </ul>
-                
-                <h4 data-en="Automation:" data-fr="Automatisation :">Automation:</h4>
-                <ul>
-                    <li data-en="Scheduled power management (auto-on/off based on time)" data-fr="Gestion de l'alimentation programmée (allumage/extinction automatique)">Scheduled power management (auto-on/off based on time)</li>
-                    <li data-en="Auto-shutdown when idle (configurable thresholds)" data-fr="Arrêt automatique en cas d'inactivité (seuils configurables)">Auto-shutdown when idle (configurable thresholds)</li>
-                    <li data-en="Power usage tracking and cost estimation" data-fr="Suivi de la consommation électrique et estimation des coûts">Power usage tracking and cost estimation</li>
-                </ul>
-                
-                <h4 data-en="Little preview:" data-fr="Petit aperçu: :">Little preview:</h4>
-                <img src="Assets/Wake-server-preview.png" alt="Wakeserver preview" class="project-preview">
-            </div>
-        </div>
-        <div class="card project-card">
-            <div class="project-header">
-                <h3 data-en="AWHESS (AWS Clone in My Style)" data-fr="AWHESS (Clone AWS à ma Façon)">AWHESS (AWS Clone in My Style)</h3>
-            </div>
-            <p class="project-description" data-en="A large-scale personal cloud infrastructure project designed to deeply learn OpenStack by building an AWS-equivalent platform from the ground up. Will be deployed on my Dell PowerEdge R630." data-fr="Un projet d'infrastructure cloud personnel à grande échelle conçu pour apprendre OpenStack en profondeur en construisant une plateforme équivalente à AWS. Sera déployé sur mon Dell PowerEdge R630.">
-                A large-scale personal cloud infrastructure project designed to deeply learn OpenStack by building an AWS-equivalent platform from the ground up. Will be deployed on my Dell PowerEdge R630.
-            </p>
-            <div class="project-details">
-                <h4 data-en="Core Services:" data-fr="Services Principaux :">Core Services:</h4>
-                <ul>
-                    <li><strong>AWHESS Compute</strong> - <span data-en="Virtual machines, auto-scaling groups (OpenStack Nova)" data-fr="Machines virtuelles, groupes d'auto-scaling (OpenStack Nova)">Virtual machines, auto-scaling groups (OpenStack Nova)</span></li>
-                    <li><strong>AWHESS Functions</strong> - <span data-en="Serverless execution with Spring Boot, HTTP triggers, scheduled & event-driven architecture" data-fr="Exécution serverless avec Spring Boot, déclencheurs HTTP, architecture événementielle et programmée">Serverless execution with Spring Boot, HTTP triggers, scheduled & event-driven architecture</span></li>
-                    <li><strong>AWHESS Storage</strong> - <span data-en="Object storage (S3 equivalent), block storage (EBS equivalent), snapshots & backups" data-fr="Stockage objet (équivalent S3), stockage bloc (équivalent EBS), snapshots et sauvegardes">Object storage (S3 equivalent), block storage (EBS equivalent), snapshots & backups</span></li>
-                    <li><strong>AWHESS Network</strong> - <span data-en="VPC, subnets, routing tables, security groups, load balancers (OpenStack Neutron)" data-fr="VPC, sous-réseaux, tables de routage, groupes de sécurité, répartiteurs de charge (OpenStack Neutron)">VPC, subnets, routing tables, security groups, load balancers (OpenStack Neutron)</span></li>
-                    <li><strong>AWHESS Database</strong> - <span data-en="Managed PostgreSQL/MySQL, automated backups, read replicas" data-fr="PostgreSQL/MySQL managés, sauvegardes automatisées, réplicas de lecture">Managed PostgreSQL/MySQL, automated backups, read replicas</span></li>
-                    <li><strong>AWHESS Monitoring</strong> - <span data-en="Metrics, log aggregation, alarms, dashboards (CloudWatch equivalent)" data-fr="Métriques, agrégation de logs, alarmes, tableaux de bord (équivalent CloudWatch)">Metrics, log aggregation, alarms, dashboards (CloudWatch equivalent)</span></li>
-                </ul>
-                
-                <p class="project-goal">
-                    <strong data-en="Project Goal:" data-fr="Objectif du Projet :">Project Goal:</strong> <span data-en="Master OpenStack through hands-on implementation of a complete cloud platform, understanding distributed systems, virtualization, and cloud architecture at scale." data-fr="Maîtriser OpenStack par la mise en œuvre pratique d'une plateforme cloud complète, en comprenant les systèmes distribués, la virtualisation et l'architecture cloud à grande échelle.">Master OpenStack through hands-on implementation of a complete cloud platform, understanding distributed systems, virtualization, and cloud architecture at scale.</span>
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
+        </section>
+
         <section id="projects" class="card">
             <h2>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1171,7 +1199,7 @@ transform: scale(1.05);
                     </p>
                     <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
                         <a href="https://github.com/mohrnd/Web-Hosting-Service" target="_blank" class="btn">
-                            <span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span></a>
+                            <span data-en="View on GitHub" data-fr="Voir sur GitHub">View on GitHub</span>
                         </a>
                         <a href="https://www.linkedin.com/posts/boubekeur-mohend_designing-and-deploying-a-secure-web-hosting-activity-7389256707756982272-hGsk" target="_blank" class="btn">
                             <span data-en="LinkedIn Post" data-fr="Publication LinkedIn">LinkedIn Post</span>
@@ -1339,12 +1367,3 @@ transform: scale(1.05);
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
