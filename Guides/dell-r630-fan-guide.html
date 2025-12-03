@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dell PowerEdge R630 Fan Control - Mohend Boubekeur</title>
+    <link rel="icon" href="https://boubekeur.net/Assets/bimi-logo.svg" type="image/svg+xml">
+    <meta name="description" content="Comprehensive guide to controlling and quieting Dell PowerEdge R630 server fans using IPMI and custom scripts.">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
+        :root {
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-dark: #7e22ce;
+            --bg-dark: #0b0014;
+            --text-light: #f2e9ff;
+            --text-muted: #b69cd9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-light);
+            background: var(--bg-dark);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .blob {
+            position: fixed;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            filter: blur(180px);
+            opacity: 0.6;
+            z-index: 0;
+            animation: moveBlobs 30s infinite ease-in-out alternate;
+        }
+
+        .blob:nth-child(1) {
+            background: radial-gradient(circle, #a855f7 0%, #7e22ce 100%);
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .blob:nth-child(2) {
+            background: radial-gradient(circle, #7e22ce 0%, #5b21b6 100%);
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 7s;
+        }
+
+        @keyframes moveBlobs {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            33% {
+                transform: translate(120px, -100px) scale(1.3) rotate(120deg);
+            }
+            66% {
+                transform: translate(-100px, 80px) scale(0.9) rotate(240deg);
+            }
+            100% {
+                transform: translate(50px, -50px) scale(1.1) rotate(360deg);
+            }
+        }
+
+        canvas#particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .logo {
+            position: fixed;
+            top: 1rem;
+            left: 1.5rem;
+            z-index: 1000;
+            width: 180px;
+            height: 80px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 5px 15px rgba(168, 85, 247, 0.3));
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logo:hover {
+            transform: scale(1.15) translateY(-8px) rotate(2deg);
+            filter: drop-shadow(0 8px 30px rgba(168, 85, 247, 0.6));
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            padding: 0.85rem 1.75rem;
+            backdrop-filter: blur(20px);
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        .back-btn:hover {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.4s;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-5px);
+        }
+
+        header {
+            position: relative;
+            text-align: center;
+            padding: 8rem 2rem 2rem;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, white 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulseGlow 5s infinite ease-in-out, fadeInDown 1s ease-out;
+            position: relative;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 35px rgba(168, 85, 247, 0.8));
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quick-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .nav-link {
+            background: rgba(168, 85, 247, 0.1);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 25px;
+            padding: 0.7rem 1.4rem;
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(168, 85, 247, 0.4);
+        }
+
+        main {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 8rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            animation: fadeInScale 0.8s ease-out both;
+            scroll-margin-top: 100px;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(168, 85, 247, 0.25);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(168, 85, 247, 0.3);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2 svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            stroke: var(--accent);
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+
+        h3 {
+            color: var(--accent-light);
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: var(--accent-light);
+            font-size: 1.1rem;
+            margin: 1.5rem 0 1rem;
+            font-weight: 600;
+        }
+
+        p, li {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        code {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-light);
+            display: block;
+            line-height: 1.6;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        ul li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+
+        ol li {
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        th {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .note {
+            background: rgba(168, 85, 247, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .note p {
+            margin: 0;
+        }
+
+        .warning {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .warning p {
+            margin: 0;
+            color: #fca5a5;
+        }
+
+        .info-box {
+    background: rgba(168, 85, 247, 0.08);
+    border-left: 4px solid var(--accent-light);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+}
+
+.info-box p {
+    margin: 0;
+    color: var(--text-light);
+}
+
+.info-box a {
+    color: var(--accent-light);
+    text-decoration: underline;
+}
+
+.info-box a:hover {
+    color: var(--accent);
+}
+
+
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            padding: 3rem 1rem;
+            border-top: 2px solid rgba(168, 85, 247, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .top-nav {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .logo {
+                width: 70px;
+                height: 70px;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            .quick-nav {
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <canvas id="particles"></canvas>
+
+    <a href="#top" class="logo">
+        <img src="https://boubekeur.net/Assets/logo.png" alt="Logo">
+    </a>
+
+    <div class="top-nav">
+        <a href="https://boubekeur.net/blog.html" class="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Home
+        </a>
+    </div>
+
+    <header>
+        <h1>Dell R630 Fan Control</h1>
+        <p class="header-subtitle">Make Your PowerEdge Server Whisper-Quiet</p>
+        
+        <nav class="quick-nav">
+            <a href="#overview" class="nav-link">Overview</a>
+            <a href="#script" class="nav-link">Fan Control Script</a>
+            <a href="#systemd" class="nav-link">Systemd Service</a>
+            <a href="#monitoring" class="nav-link">Monitoring</a>
+            <a href="#troubleshooting" class="nav-link">Troubleshooting</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="section" id="overview">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    Overview
+                </h2>
+
+                <p>The Dell PowerEdge R630 server can be quite loud, especially with aftermarket PCI cards or non-standard firmware. The internal fan controller often maintains unnecessarily high RPMs. This guide shows you how to implement intelligent fan control using IPMI to dramatically reduce noise levels while maintaining safe operating temperatures.</p>
+
+                <h3>How It Works</h3>
+                <p>The fan control system uses a feedback loop that:</p>
+                <ul>
+                    <li>Monitors CPU package temperatures, inlet temperature, and exhaust temperature</li>
+                    <li>Dynamically adjusts fan speeds to maintain target temperatures</li>
+                    <li>Implements safety mechanisms to prevent overheating</li>
+                    <li>Automatically restores default fan control on exit</li>
+                    <li>Logs all temperature readings and fan speed changes</li>
+                </ul>
+
+                <h3>Key Features</h3>
+                <ul>
+                    <li><strong>Intelligent Control Loop:</strong> Gradually adjusts fan speeds based on temperature differences</li>
+                    <li><strong>Safety First:</strong> Automatically maxes out fans if alarm temperature is reached</li>
+                    <li><strong>Critical Protection:</strong> Triggers shutdown if critical temperature persists</li>
+                    <li><strong>Hysteresis Factor:</strong> Becomes more aggressive as temperatures approach limits</li>
+                    <li><strong>Exit Safety:</strong> Ensures automatic fan control is restored on exit</li>
+                </ul>
+
+                <div class="warning">
+                    <p><strong>⚠️ Warning:</strong> Improper fan control can damage your server. Always monitor temperatures during initial setup and adjust parameters based on your specific workload and environment.</p>
+                </div>
+
+                <h3>Prerequisites</h3>
+                <ul>
+                    <li>Dell PowerEdge R630 server</li>
+                    <li>IPMI tools installed (<code>apt-get install ipmitool</code>)</li>
+                    <li>Root or sudo access</li>
+                    <li>Basic understanding of systemd services</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section" id="script">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    Fan Control Script
+                </h2>
+
+                <h3>User-Configurable Parameters</h3>
+                <p>These parameters at the top of the script can be adjusted to suit your environment:</p>
+
+                <table>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>DEBUG</code></td>
+                        <td>0</td>
+                        <td>Enable debugging output (0=off, 1=on)</td>
+                    </tr>
+                    <tr>
+                        <td><code>TARGET_TEMP</code></td>
+                        <td>35°C</td>
+                        <td>Target CPU temperature</td>
+                    </tr>
+                    <tr>
+                        <td><code>HYSTERESIS_OFFSET</code></td>
+                        <td>5°C</td>
+                        <td>Temperature buffer for adjustments</td>
+                    </tr>
+                    <tr>
+                        <td><code>LOOP_DELAY</code></td>
+                        <td>5s</td>
+                        <td>Delay between control loop iterations</td>
+                    </tr>
+                    <tr>
+                        <td><code>START_SPEED</code></td>
+                        <td>30%</td>
+                        <td>Initial fan speed</td>
+                    </tr>
+                    <tr>
+                        <td><code>MIN_SPEED</code></td>
+                        <td>5%</td>
+                        <td>Minimum allowed fan speed</td>
+                    </tr>
+                    <tr>
+                        <td><code>MAX_SPEED</code></td>
+                        <td>70%</td>
+                        <td>Maximum allowed fan speed</td>
+                    </tr>
+                    <tr>
+                        <td><code>PACKAGE_ALARM_TEMP</code></td>
+                        <td>70°C</td>
+                        <td>Temperature to trigger max fan speed</td>
+                    </tr>
+                    <tr>
+                        <td><code>CRITICAL_TEMP</code></td>
+                        <td>85°C</td>
+                        <td>Critical temperature threshold</td>
+                    </tr>
+                    <tr>
+                        <td><code>HYSTERESIS_WAIT</code></td>
+                        <td>300s</td>
+                        <td>Time at critical temp before action</td>
+                    </tr>
+                    <tr>
+                        <td><code>CRITICAL_EVENT_COMMAND</code></td>
+                        <td>shutdown -h now</td>
+                        <td>Command to run at critical temperature</td>
+                    </tr>
+                    <tr>
+                        <td><code>HYSTERESIS_MULTIPLIER</code></td>
+                        <td>2.0</td>
+                        <td>Exhaust temperature sensitivity multiplier</td>
+                    </tr>
+                </table>
+
+                <h3>Complete Script</h3>
+                <div class="info-box">
+    <p>
+        <strong>ℹ Info:</strong> This guide is based on the original fan control script by 
+        <a href="https://gist.github.com/jhatler" target="_blank">Jaremy Hatler</a>, 
+        released under the MIT License.  
+        You can view the original source here:
+        <a href="https://gist.github.com/jhatler/855abc7fb8663bcc2c97fec77b10ea03" target="_blank">Original Script Repository</a>.
+    </p>
+</div>
+
+                <p>Save this as <code>fan-control.sh</code>:</p>
+                <pre><code>#!/bin/bash
+# Copyright 2024 - 2024, Jaremy Hatler
+# SPDX-License-Identifier: MIT
+
+## Dell R630 Fan Control Script
+
+# This script controls the fan speed on a Dell r630 server in response to the CPU temperature.
+#
+# In some cases (nonstandard firmware, aftermarket PCI cards, etc.), the internal fan controller
+# will consistently maintain high RPMs. This script uses IPMI to enable manual fan control and set
+# the fan speed across all fans. An exit trap is used to ensure automatic fan control is enabled
+# upon exiting. On each iteration, the script logs its data and any changes it makes.
+#
+# A control loop is used which monitors the CPU package temperatures, inlet temp, and exhaust temp
+# and adjusts the fan speeds in response. The user can set the parameters of this control loop in
+# the section below, including the loop delay. At a high level, the control loop begins by setting
+# the fans to the configured start speed. It will then use the difference between the target and
+# actual package temperatures to determine whether to increase or decrease the fan speed, and by
+# how much.
+#
+# If the packages are at or below the target temp, the control loop will reduce the fans speeds
+# until an equilibrium is reached. If the inlet temperature is higher than the target, it plus
+# the configured hysteresis offset will be used as the target.
+#
+# If the package alarm temperature is met, the fans will immediately be set to their configured
+# maximums until the temperature begins to drop. If the configured critical temperature is met
+# for longer than the specified hysteresis wait, the user-specified critical event command will
+# be run. The script becomes more aggressive as the exhaust temperature and package temperature
+# near the package alarm temperature.
+
+# Proof of concept commands:
+#   Get Package 0 Temp: cat /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp1_input
+#   Get Package 1 Temp: cat /sys/devices/platform/coretemp.1/hwmon/hwmon1/temp1_input
+#   Get Inlet Temp: ipmitool sensor get 'Inlet Temp' | grep Reading | cut -f2 -d:
+#   Get Exhaust Temp: ipmitool sensor get 'Exhaust Temp' | grep Reading | cut -f2 -d:
+#   Enable manual fan control: ipmitool raw 0x30 0x30 0x01 0x00
+#   Disable manual fan control: ipmitool raw 0x30 0x30 0x01 0x01
+#   Set Fan Speeds to 0%: ipmitool raw 0x30 0x30 0x02 0xff 0x00
+#   Set Fan Speeds to 100%: ipmitool raw 0x30 0x30 0x02 0xff 0x64
+
+
+## User Parameters
+
+DEBUG=0 # Enable debugging
+TARGET_TEMP=35 # The target temperature in Celsius
+HYSTERESIS_OFFSET=5 # The hysteresis offset in Celsius
+LOOP_DELAY=5 # The delay between each loop iteration in seconds
+START_SPEED=30 # The starting fan speed in percent
+MIN_SPEED=5 # The minimum fan speed in percent
+MAX_SPEED=70 # The maximum fan speed in percent
+PACKAGE_ALARM_TEMP=70 # The package alarm temperature in Celsius
+CRITICAL_TEMP=85 # The critical temperature in Celsius
+HYSTERESIS_WAIT=300 # The hysteresis wait time in seconds
+CRITICAL_EVENT_COMMAND="shutdown -h now" # The command to run when the critical temperature is met
+HYSTERESIS_MULTIPLIER="2.0" # The multiplier for the exhaust temperature hysteresis
+
+## Exit Trap
+
+function _exit_trap() {
+    # Ensure automatic fan control is enabled upon exiting
+    _disable_manual_fan_control
+}
+
+
+## Functions
+
+function _pkg_temp() {
+    # Returns the average of all the platform core temperatures
+    local _acc=0
+    local _count=0
+    for _core in /sys/devices/platform/coretemp.*; do
+        _acc=$(( _acc + $(cat $_core/hwmon/hwmon*/temp1_input) ))
+        _count=$(( _count + 1000 ))
+    done
+    echo $((_acc / _count))
+}
+
+function _inlet_temp() {
+    # Returns the inlet temperature
+    ipmitool sensor get 'Inlet Temp' | grep -F 'Sensor Reading' | cut -f2 -d: | cut -f2 -d' ' 2>/dev/null
+}
+
+function _exhaust_temp() {
+    # Returns the exhaust temperature
+    ipmitool sensor get 'Exhaust Temp' | grep -F 'Sensor Reading' | cut -f2 -d: | cut -f2 -d' ' 2>/dev/null
+}
+
+function _set_fan_speed() {
+    # Sets the fan speed to the given percentage
+    local _speed=$1
+
+    # Ensure the speed is within the valid range
+    if [[ $_speed -lt $MIN_SPEED ]]; then
+        _speed=$MIN_SPEED
+    elif [[ $_speed -gt $MAX_SPEED ]]; then
+        _speed=$MAX_SPEED
+    fi
+
+    # Convert the speed to hex
+    local _hex_speed=$(printf "0x%x" $_speed)
+
+    # Set the fan speed
+    ipmitool raw 0x30 0x30 0x02 0xff $_hex_speed >&/dev/null
+}
+
+function _enable_manual_fan_control() {
+    # Enables manual fan control
+    ipmitool raw 0x30 0x30 0x01 0x00 >&/dev/null
+}
+
+function _disable_manual_fan_control() {
+    # Disables manual fan control
+    ipmitool raw 0x30 0x30 0x01 0x01 >&/dev/null
+}
+
+function _calculate_fan_speed() {
+    # Calculates the fan speed based on the target temperature and the actual temperature
+    local _target_temp=$1
+    local _pkg_temp=$2
+    local _exhaust_temp=$3
+    local _fan_speed=$4
+    local _start_speed=$4
+
+    # Int Rounding Support
+    local _rnd_bgn="scale=8; a=("
+    local _rnd_end=" + 0.5); scale=0; a/1"
+
+    # Starting factors
+    local _hysteresis_factor="1.0"
+    local _speed_factor="0"
+
+    # Calculate the hysteresis temperature and round to the nearest integer
+    local _hysteresis_offset=$(echo "$_rnd_bgn($HYSTERESIS_OFFSET * $HYSTERESIS_MULTIPLIER)$_rnd_end" | bc)
+    local _hysteresis_temp=$(echo "$_rnd_bgn($PACKAGE_ALARM_TEMP - $_hysteresis_offset)$_rnd_end" | bc)
+
+    # Calculate the difference between the actual temperature and target
+    local _temp_diff=$(( _pkg_temp - _target_temp ))
+    local _temp_diff_abs=${_temp_diff#-}
+
+    # Offset speed factor based on the exhaust temperature
+    if [[ $_exhaust_temp -gt $_hysteresis_temp ]]; then
+        _speed_factor=$(echo "$_speed_factor + 0.75" | bc -l)
+    fi
+
+    # Calculate the fan speed change based on the range of the temperature difference
+    if [[ $_temp_diff_abs -gt 32 ]]; then
+        _speed_factor="2.0"
+    elif [[ $_temp_diff_abs -gt 16 ]]; then
+        _speed_factor="1.375"
+    elif [[ $_temp_diff_abs -gt 8 ]]; then
+        _speed_factor="0.875"
+    elif [[ $_temp_diff_abs -gt 4 ]]; then
+        _speed_factor="0.5"
+    elif [[ $_temp_diff_abs -gt 2 ]]; then
+        _speed_factor="0.25"
+    fi
+
+    # Update hysteresis factor based on the package temperature compared to the hysteresis temperature
+    if [[ $_pkg_temp -gt $_hysteresis_temp ]]; then
+        _hysteresis_factor=$(echo "$_hysteresis_factor + 2" | bc)
+    else
+        _hysteresis_factor=$(echo "$_hysteresis_factor + 1" | bc)
+    fi
+
+    # Calculate the speed change based on the speed factor and hysteresis factor, ensure the range
+    local _speed_change=$(echo "$_rnd_bgn($_speed_factor * $_hysteresis_factor)$_rnd_end" | bc)
+    if [[ $_speed_change -gt 5 ]]; then
+        _speed_change=5
+    fi
+
+    # Give the speed change a direction
+    if [[ $_temp_diff -lt 0 ]]; then
+        _speed_change=$(( _speed_change * -1 ))
+    fi
+
+    # Ensure the fan speed is reduced if the package temperature at or below the target
+    if [[ $_temp_diff -le 0 ]] && [[ $_speed_change -eq 0 ]]; then
+        _speed_change=-1
+    fi
+
+    # Calculate the new fan speed
+    _fan_speed=$(( _fan_speed + _speed_change ))
+    if [[ $_fan_speed -lt 1 ]]; then
+        _fan_speed=1
+    elif [[ $_fan_speed -gt 99 ]]; then
+        _fan_speed=99
+    fi
+
+    # Debugging
+    if [[ "$DEBUG" != "0" ]]; then
+        echo "Start Speed: $_start_speed"
+        echo "Package Temp: $_pkg_temp"
+        echo "Exhaust Temp: $_exhaust_temp"
+        echo "Target Temp: $_target_temp"
+        echo "Hysteresis Temp: $_hysteresis_temp"
+        echo "Temp Diff: $_temp_diff"
+        echo "Speed Factor: $_speed_factor"
+        echo "Hysteresis Factor: $_hysteresis_factor"
+        echo "Fan Speed: $_fan_speed"
+    fi >&2
+
+    echo $_fan_speed
+}
+
+function _log_data() {
+    # Logs the data to a file
+    local _pkg_temp=$1
+    local _inlet_temp=$2
+    local _exhaust_temp=$3
+    local _target_temp=$4
+    local _fan_speed=$5
+
+    # Log the data
+    local _msg="$(date +%s) $(date) - "
+
+    _msg+="Package Temp: $_pkg_temp, "
+    _msg+="Inlet Temp: $_inlet_temp, "
+    _msg+="Exhaust Temp: $_exhaust_temp, "
+    _msg+="Target Temp: $_target_temp, "
+    _msg+="Fan Speed: $_fan_speed [$MIN_SPEED - $MAX_SPEED]"
+
+    echo "$_msg" | tee -a /var/log/fanctrl.log >&2
+}
+
+function _run_critical_event() {
+    # Runs the critical event command
+    eval "$CRITICAL_EVENT_COMMAND"
+}
+
+## Main
+function _main() {
+    local critical_event_wait=0 # The time since the critical temperature was met
+    local fan_speed=$START_SPEED # The current fan speed
+    local new_fan_speed=$START_SPEED # The new fan speed
+
+    # Enable manual fan control and set the initial fan speed
+    _enable_manual_fan_control
+    _set_fan_speed $fan_speed
+
+    # Main control loop
+    while true; do
+        # Get the current temperatures
+        local pkg_temp=$(_pkg_temp)
+        local inlet_temp=$(_inlet_temp)
+        local exhaust_temp=$(_exhaust_temp)
+
+        # Calculate the target temperature
+        local target_temp=$TARGET_TEMP
+        if [[ $inlet_temp -gt $target_temp ]]; then
+            target_temp=$((inlet_temp + HYSTERESIS_OFFSET))
+        fi
+
+        # Debugging
+        if [[ "$DEBUG" != "0" ]]; then
+            echo "Start Fan Speed: $fan_speed"
+            echo "Crtical Wait: $critical_event_wait"
+            echo "Package Temp: $pkg_temp"
+            echo "Inlet Temp: $inlet_temp"
+            echo "Exhaust Temp: $exhaust_temp"
+            echo "Target Temp: $target_temp"
+        fi >&2
+
+        # Check for critical temperature
+        if [[ $pkg_temp -ge $CRITICAL_TEMP ]]; then
+            critical_event_wait=$((critical_event_wait + LOOP_DELAY))
+            if [[ $critical_event_wait -ge $HYSTERESIS_WAIT ]]; then
+                _run_critical_event
+            fi
+        else
+            critical_event_wait=0
+        fi
+
+        # Check for package alarm temperature
+        if [[ $pkg_temp -ge $PACKAGE_ALARM_TEMP ]]; then
+            new_fan_speed=$MAX_SPEED
+        else
+            new_fan_speed=$(_calculate_fan_speed $target_temp $pkg_temp $exhaust_temp $fan_speed)
+        fi
+
+        # Set the new fan speed if it has changed
+        if [[ $new_fan_speed -ne $fan_speed ]]; then
+            fan_speed=$new_fan_speed
+            _set_fan_speed $fan_speed
+        fi
+
+        # Log the data
+        _log_data $pkg_temp $inlet_temp $exhaust_temp $target_temp $fan_speed
+
+        # Sleep for the loop delay
+        sleep $LOOP_DELAY
+    done
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    trap _exit_trap EXIT
+    _main
+fi</code></pre>
+
+                <h3>Understanding the Control Logic</h3>
+
+                <h4>Temperature Difference Ranges</h4>
+                <p>The script adjusts fan speed based on how far the current temperature is from the target:</p>
+                <ul>
+                    <li><strong>&gt;32°C difference:</strong> Maximum adjustment (speed factor 2.0)</li>
+                    <li><strong>16-32°C difference:</strong> Large adjustment (speed factor 1.375)</li>
+                    <li><strong>8-16°C difference:</strong> Medium adjustment (speed factor 0.875)</li>
+                    <li><strong>4-8°C difference:</strong> Small adjustment (speed factor 0.5)</li>
+                    <li><strong>2-4°C difference:</strong> Minimal adjustment (speed factor 0.25)</li>
+                    <li><strong>&lt;2°C difference:</strong> No adjustment</li>
+                </ul>
+
+                <h4>Hysteresis Factor</h4>
+                <p>The script becomes more aggressive as temperatures approach the alarm threshold:</p>
+                <ul>
+                    <li>When package temp &gt; hysteresis temp: Factor increases by 2</li>
+                    <li>Otherwise: Factor increases by 1</li>
+                    <li>Additional 0.75 factor added if exhaust temp exceeds hysteresis temp</li>
+                </ul>
+
+                <div class="note">
+                    <p><strong>Note:</strong> The hysteresis temperature is calculated as: <code>PACKAGE_ALARM_TEMP - (HYSTERESIS_OFFSET × HYSTERESIS_MULTIPLIER)</code></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="systemd">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                    </svg>
+                    Systemd Service Setup
+                </h2>
+
+                <p>To ensure the fan control script runs automatically at boot and restarts if it crashes, we'll create a systemd service.</p>
+
+                <h3>Step 1: Save the Script</h3>
+                <p>Copy the fan control script to a system location and make it executable:</p>
+                <pre><code>sudo cp fan-control.sh /usr/local/bin/fan-control.sh
+sudo chmod +x /usr/local/bin/fan-control.sh</code></pre>
+
+                <h3>Step 2: Create the Service File</h3>
+                <p>Create a new systemd service file:</p>
+                <pre><code>sudo nano /etc/systemd/system/fan-control.service</code></pre>
+
+                <p>Add the following configuration:</p>
+                <pre><code>[Unit]
+Description=Dell R630 Fan Control
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/fan-control.sh
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Safety: if script fails 5 times in 2 minutes, stop trying
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+                <h3>Service Configuration Explained</h3>
+                <table>
+                    <tr>
+                        <th>Directive</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><code>After=network.target</code></td>
+                        <td>Start after network is available</td>
+                    </tr>
+                    <tr>
+                        <td><code>Type=simple</code></td>
+                        <td>Service runs in foreground</td>
+                    </tr>
+                    <tr>
+                        <td><code>Restart=always</code></td>
+                        <td>Automatically restart if it crashes</td>
+                    </tr>
+                    <tr>
+                        <td><code>RestartSec=10</code></td>
+                        <td>Wait 10 seconds before restarting</td>
+                    </tr>
+                    <tr>
+                        <td><code>StandardOutput=journal</code></td>
+                        <td>Send output to systemd journal</td>
+                    </tr>
+                    <tr>
+                        <td><code>StartLimitBurst=5</code></td>
+                        <td>Maximum 5 restart attempts</td>
+                    </tr>
+                    <tr>
+                        <td><code>StartLimitIntervalSec=120</code></td>
+                        <td>Within a 2-minute window</td>
+                    </tr>
+                </table>
+
+                <h3>Step 3: Enable and Start the Service</h3>
+                <pre><code># Reload systemd to recognize the new service
+sudo systemctl daemon-reload
+
+# Enable it to start on boot
+sudo systemctl enable fan-control.service
+
+# Start it now
+sudo systemctl start fan-control.service</code></pre>
+
+                <h3>Service Management Commands</h3>
+                <pre><code># Check service status
+sudo systemctl status fan-control.service
+
+# Stop the service
+sudo systemctl stop fan-control.service
+
+# Restart the service
+sudo systemctl restart fan-control.service
+
+# Disable auto-start on boot
+sudo systemctl disable fan-control.service</code></pre>
+
+                <div class="note">
+                    <p><strong>Tip:</strong> The service will automatically restore default fan control when stopped, thanks to the exit trap in the script.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="monitoring">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Monitoring & Logs
+                </h2>
+
+                <h3>Real-Time Monitoring</h3>
+                
+                <h4>Service Status</h4>
+                <p>Check if the service is running and view recent log entries:</p>
+                <pre><code>sudo systemctl status fan-control.service</code></pre>
+
+                <h4>Live Journal Logs</h4>
+                <p>Follow systemd journal logs in real-time:</p>
+                <pre><code>sudo journalctl -u fan-control.service -f</code></pre>
+
+                <h4>Fan Control Log File</h4>
+                <p>Monitor the detailed log file created by the script:</p>
+                <pre><code>sudo tail -f /var/log/fanctrl.log</code></pre>
+
+                <h3>Log Analysis Commands</h3>
+
+                <h4>View Last 50 Lines</h4>
+                <pre><code>sudo journalctl -u fan-control.service -n 50</code></pre>
+
+                <h4>View Logs Since Boot</h4>
+                <pre><code>sudo journalctl -u fan-control.service -b</code></pre>
+
+                <h4>View Logs from Specific Time</h4>
+                <pre><code>sudo journalctl -u fan-control.service --since "2024-01-01 10:00:00"</code></pre>
+
+                <h4>View Logs with Priority</h4>
+                <pre><code># Only errors and critical messages
+sudo journalctl -u fan-control.service -p err
+
+# All messages except debug
+sudo journalctl -u fan-control.service -p info</code></pre>
+
+                <h3>Understanding Log Output</h3>
+                <p>The log file (<code>/var/log/fanctrl.log</code>) contains entries in this format:</p>
+                <pre><code>1704117600 Mon Jan 01 12:00:00 2024 - Package Temp: 42, Inlet Temp: 25, Exhaust Temp: 35, Target Temp: 35, Fan Speed: 28 [5 - 70]</code></pre>
+
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>Unix Timestamp</td>
+                        <td>Epoch time for precise sorting</td>
+                    </tr>
+                    <tr>
+                        <td>Human Date</td>
+                        <td>Readable timestamp</td>
+                    </tr>
+                    <tr>
+                        <td>Package Temp</td>
+                        <td>Average CPU package temperature (°C)</td>
+                    </tr>
+                    <tr>
+                        <td>Inlet Temp</td>
+                        <td>Air temperature entering the server</td>
+                    </tr>
+                    <tr>
+                        <td>Exhaust Temp</td>
+                        <td>Air temperature leaving the server</td>
+                    </tr>
+                    <tr>
+                        <td>Target Temp</td>
+                        <td>Current target temperature (may adjust based on inlet)</td>
+                    </tr>
+                    <tr>
+                        <td>Fan Speed</td>
+                        <td>Current fan speed percentage [Min - Max]</td>
+                    </tr>
+                </table>
+
+                <h3>Manual Temperature Checks</h3>
+                
+                <h4>CPU Package Temperatures</h4>
+                <pre><code># Package 0
+cat /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp1_input
+
+# Package 1
+cat /sys/devices/platform/coretemp.1/hwmon/hwmon1/temp1_input</code></pre>
+                <p><em>Note: Values are in millidegrees Celsius (divide by 1000)</em></p>
+
+                <h4>IPMI Sensor Readings</h4>
+                <pre><code># Inlet temperature
+ipmitool sensor get 'Inlet Temp'
+
+# Exhaust temperature
+ipmitool sensor get 'Exhaust Temp'
+
+# All sensors
+ipmitool sensor list</code></pre>
+
+                <h3>Performance Monitoring Script</h3>
+                <p>Create a simple monitoring script to watch key metrics:</p>
+                <pre><code>#!/bin/bash
+while true; do
+    clear
+    echo "=== Dell R630 Fan Control Monitor ==="
+    echo "Time: $(date)"
+    echo ""
+    systemctl is-active fan-control.service | \
+        awk '{print "Service Status: " ($0=="active" ? "✓ Running" : "✗ Stopped")}'
+    echo ""
+    tail -n 1 /var/log/fanctrl.log 2>/dev/null || echo "No log data yet"
+    sleep 5
+done</code></pre>
+
+                <p>Save as <code>monitor.sh</code>, make executable, and run:</p>
+                <pre><code>chmod +x monitor.sh
+./monitor.sh</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="troubleshooting">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    Troubleshooting
+                </h2>
+
+                <h3>Common Issues</h3>
+
+                <h4>Service Won't Start</h4>
+                <p><strong>Symptoms:</strong> Service fails immediately or shows "failed" status</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Check script permissions: <code>ls -l /usr/local/bin/fan-control.sh</code></li>
+                    <li>Verify script has execute permission: <code>sudo chmod +x /usr/local/bin/fan-control.sh</code></li>
+                    <li>Check for syntax errors: <code>bash -n /usr/local/bin/fan-control.sh</code></li>
+                    <li>View error logs: <code>sudo journalctl -u fan-control.service -n 50</code></li>
+                </ul>
+
+                <h4>IPMI Commands Not Working</h4>
+                <p><strong>Symptoms:</strong> ipmitool commands fail or return errors</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Install ipmitool: <code>sudo apt-get install ipmitool</code></li>
+                    <li>Load kernel modules: <code>sudo modprobe ipmi_devintf && sudo modprobe ipmi_si</code></li>
+                    <li>Test IPMI: <code>sudo ipmitool sensor list</code></li>
+                    <li>Check IPMI service: <code>sudo systemctl status ipmitool</code></li>
+                </ul>
+
+                <h4>Fans Too Loud</h4>
+                <p><strong>Symptoms:</strong> Fans are still running at high speed</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Lower <code>START_SPEED</code> and <code>MAX_SPEED</code> parameters</li>
+                    <li>Increase <code>TARGET_TEMP</code> (carefully!)</li>
+                    <li>Check inlet temperature isn't elevated</li>
+                    <li>Ensure adequate airflow around server</li>
+                </ul>
+
+                <h4>Temperatures Too High</h4>
+                <p><strong>Symptoms:</strong> CPU temperatures consistently above target</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Increase <code>MAX_SPEED</code> limit</li>
+                    <li>Lower <code>TARGET_TEMP</code></li>
+                    <li>Decrease <code>LOOP_DELAY</code> for faster response</li>
+                    <li>Check thermal paste on CPUs</li>
+                    <li>Verify fan operation with <code>ipmitool sdr type fan</code></li>
+                </ul>
+
+                <h4>Script Keeps Restarting</h4>
+                <p><strong>Symptoms:</strong> Service restarts frequently, hits StartLimitBurst</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Enable debug mode: Set <code>DEBUG=1</code> in script</li>
+                    <li>Check for missing dependencies (bc command): <code>sudo apt-get install bc</code></li>
+                    <li>Verify temperature sensors exist: <code>ls /sys/devices/platform/coretemp.*</code></li>
+                    <li>Review full logs for error patterns</li>
+                </ul>
+
+                <h3>Emergency Fan Restore</h3>
+                <p>If something goes wrong and fans are stuck at low speed:</p>
+                <pre><code># Stop the service immediately
+sudo systemctl stop fan-control.service
+
+# Manually restore automatic fan control
+sudo ipmitool raw 0x30 0x30 0x01 0x01
+
+# Verify fans speed up
+sudo ipmitool sdr type fan</code></pre>
+
+                <div class="warning">
+                    <p><strong>⚠️ Emergency Procedure:</strong> If temperatures are dangerously high and fans won't respond, immediately power down the server and check for hardware issues.</p>
+                </div>
+
+                <h3>Testing Fan Control Manually</h3>
+                <p>Before enabling the service, test the script manually:</p>
+                <pre><code># Run script in foreground with debug enabled
+sudo DEBUG=1 /usr/local/bin/fan-control.sh
+
+# Press Ctrl+C to stop and restore automatic control</code></pre>
+
+                <p>Watch the output for several minutes to ensure:</p>
+                <ul>
+                    <li>Temperatures are being read correctly</li>
+                    <li>Fan speeds are adjusting appropriately</li>
+                    <li>No errors or warnings appear</li>
+                    <li>System stays within safe temperature ranges</li>
+                </ul>
+
+                <h3>Tuning for Your Environment</h3>
+                <p>Every server environment is different. Here are some starting points:</p>
+
+                <h4>Quiet Home Lab</h4>
+                <pre><code>TARGET_TEMP=40
+START_SPEED=20
+MIN_SPEED=5
+MAX_SPEED=50
+LOOP_DELAY=10</code></pre>
+
+                <h4>Balanced Production</h4>
+                <pre><code>TARGET_TEMP=35
+START_SPEED=30
+MIN_SPEED=10
+MAX_SPEED=70
+LOOP_DELAY=5</code></pre>
+
+                <h4>High Performance</h4>
+                <pre><code>TARGET_TEMP=30
+START_SPEED=40
+MIN_SPEED=20
+MAX_SPEED=90
+LOOP_DELAY=3</code></pre>
+
+                <div class="note">
+                    <p><strong>Tip:</strong> Always monitor temperatures for at least 24 hours after changing parameters, especially during peak workload times.</p>
+                </div>
+
+                <h3>Getting Help</h3>
+                <p>If you need assistance:</p>
+                <ul>
+                    <li>Collect full logs: <code>sudo journalctl -u fan-control.service --no-pager > fan-control.log</code></li>
+                    <li>Include your server specs (CPU model, RAM, installed cards)</li>
+                    <li>Note your ambient temperature and server location</li>
+                    <li>Document any modifications you've made to the script</li>
+                    <li>Check the original GitHub Gist for updates and community discussions</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Mohend Boubekeur. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Original script by Jaremy Hatler - MIT License</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(168, 85, 247, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    const offset = 120;
+                    const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
