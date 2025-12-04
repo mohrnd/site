@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building a Watchtower Monitoring Stack - Wazuh + Grafana + Prometheus</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏰</text></svg>">
+    <meta name="description" content="Complete guide to deploying a comprehensive monitoring stack with Wazuh SIEM, Prometheus, and Grafana on Proxmox LXC.">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
+        :root {
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-dark: #7e22ce;
+            --bg-dark: #0b0014;
+            --text-light: #f2e9ff;
+            --text-muted: #b69cd9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-light);
+            background: var(--bg-dark);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .blob {
+            position: fixed;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            filter: blur(180px);
+            opacity: 0.6;
+            z-index: 0;
+            animation: moveBlobs 30s infinite ease-in-out alternate;
+        }
+
+        .blob:nth-child(1) {
+            background: radial-gradient(circle, #a855f7 0%, #7e22ce 100%);
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .blob:nth-child(2) {
+            background: radial-gradient(circle, #7e22ce 0%, #5b21b6 100%);
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 7s;
+        }
+
+        @keyframes moveBlobs {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            33% {
+                transform: translate(120px, -100px) scale(1.3) rotate(120deg);
+            }
+            66% {
+                transform: translate(-100px, 80px) scale(0.9) rotate(240deg);
+            }
+            100% {
+                transform: translate(50px, -50px) scale(1.1) rotate(360deg);
+            }
+        }
+
+        canvas#particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .logo {
+            position: fixed;
+            top: 1rem;
+            left: 1.5rem;
+            z-index: 1000;
+            width: 180px;
+            height: 80px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 5px 15px rgba(168, 85, 247, 0.3));
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logo:hover {
+            transform: scale(1.15) translateY(-8px) rotate(2deg);
+            filter: drop-shadow(0 8px 30px rgba(168, 85, 247, 0.6));
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            padding: 0.85rem 1.75rem;
+            backdrop-filter: blur(20px);
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        .back-btn:hover {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.4s;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-5px);
+        }
+
+        header {
+            position: relative;
+            text-align: center;
+            padding: 8rem 2rem 2rem;
+            z-index: 2;
+        }
+
+        .watchtower-icon {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 2rem;
+            filter: drop-shadow(0 10px 40px rgba(168, 85, 247, 0.6));
+            animation: floatTower 4s ease-in-out infinite;
+        }
+
+        @keyframes floatTower {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, white 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulseGlow 5s infinite ease-in-out, fadeInDown 1s ease-out;
+            position: relative;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 35px rgba(168, 85, 247, 0.8));
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quick-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .nav-link {
+            background: rgba(168, 85, 247, 0.1);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 25px;
+            padding: 0.7rem 1.4rem;
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(168, 85, 247, 0.4);
+        }
+
+        main {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 8rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            animation: fadeInScale 0.8s ease-out both;
+            scroll-margin-top: 100px;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(168, 85, 247, 0.25);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(168, 85, 247, 0.3);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2 svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            stroke: var(--accent);
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+
+        h3 {
+            color: var(--accent-light);
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: var(--accent-light);
+            font-size: 1.1rem;
+            margin: 1.5rem 0 1rem;
+            font-weight: 600;
+        }
+
+        p, li {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        code {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-light);
+            display: block;
+            line-height: 1.6;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        ul li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+
+        ol li {
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        th {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .note {
+            background: rgba(168, 85, 247, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .note p {
+            margin: 0;
+        }
+
+        .warning {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .warning p {
+            margin: 0;
+            color: #fca5a5;
+        }
+
+        .info-box {
+            background: rgba(168, 85, 247, 0.08);
+            border-left: 4px solid var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--text-light);
+        }
+
+        .info-box a {
+            color: var(--accent-light);
+            text-decoration: underline;
+        }
+
+        .info-box a:hover {
+            color: var(--accent);
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .spec-item {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .spec-item:hover {
+            background: rgba(168, 85, 247, 0.12);
+            border-color: rgba(168, 85, 247, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .spec-label {
+            color: var(--accent-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-value {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            padding: 3rem 1rem;
+            border-top: 2px solid rgba(168, 85, 247, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .top-nav {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .watchtower-icon {
+                width: 120px;
+                height: 120px;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            .quick-nav {
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .spec-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <canvas id="particles"></canvas>
+    <a href="#top" class="logo">
+        <img src="https://boubekeur.net/Assets/logo.png" alt="Logo">
+    </a>
+
+    <div class="top-nav">
+        <a href="#" class="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Home
+        </a>
+    </div>
+
+    <header>
+        <svg class="watchtower-icon" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="towerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#c084fc;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#7e22ce;stop-opacity:1" />
+                </linearGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+            
+            <!-- Base platform -->
+            <rect x="40" y="160" width="120" height="10" fill="url(#towerGradient)" filter="url(#glow)"/>
+            
+            <!-- Main tower body -->
+            <path d="M 70 160 L 65 80 L 85 60 L 85 30 L 100 20 L 115 30 L 115 60 L 135 80 L 130 160 Z" 
+                  fill="url(#towerGradient)" filter="url(#glow)" opacity="0.9"/>
+            
+            <!-- Tower windows -->
+            <rect x="90" y="100" width="20" height="15" fill="#a855f7" opacity="0.6"/>
+            <rect x="90" y="120" width="20" height="15" fill="#a855f7" opacity="0.6"/>
+            <rect x="90" y="140" width="20" height="15" fill="#a855f7" opacity="0.6"/>
+            
+            <!-- Top beacon -->
+            <circle cx="100" cy="20" r="8" fill="#c084fc" filter="url(#glow)">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            
+            <!-- Radar dish -->
+            <ellipse cx="100" cy="20" rx="15" ry="3" fill="none" stroke="#c084fc" stroke-width="2" opacity="0.8">
+                <animateTransform attributeName="transform" type="rotate" from="0 100 20" to="360 100 20" dur="4s" repeatCount="indefinite"/>
+            </ellipse>
+            
+            <!-- Side supports -->
+            <line x1="85" y1="60" x2="60" y2="100" stroke="#a855f7" stroke-width="3" opacity="0.7"/>
+            <line x1="115" y1="60" x2="140" y2="100" stroke="#a855f7" stroke-width="3" opacity="0.7"/>
+            
+            <!-- Monitoring waves -->
+            <circle cx="100" cy="20" r="25" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.3">
+                <animate attributeName="r" values="25;40;25" dur="3s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.3;0;0.3" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="100" cy="20" r="25" fill="none" stroke="#c084fc" stroke-width="1" opacity="0.3">
+                <animate attributeName="r" values="25;40;25" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.3;0;0.3" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+            </circle>
+        </svg>
+
+        <h1>Watchtower Stack</h1>
+        <p class="header-subtitle">Deploy Wazuh SIEM + Prometheus + Grafana on Proxmox LXC</p>
+        
+        <nav class="quick-nav">
+            <a href="#overview" class="nav-link">Overview</a>
+            <a href="#wazuh" class="nav-link">Wazuh SIEM</a>
+            <a href="#prometheus" class="nav-link">Prometheus</a>
+            <a href="#pve-exporter" class="nav-link">PVE Exporter</a>
+            <a href="#grafana" class="nav-link">Grafana</a>
+            <a href="#verification" class="nav-link">Verification</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="section" id="overview">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    Project Overview
+                </h2>
+
+                <p>This guide walks you through deploying a comprehensive monitoring stack on a Proxmox LXC container. The "Watchtower" combines three powerful tools to give you complete visibility into your infrastructure's security, performance, and health.</p>
+
+                <h3>The Stack</h3>
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">SIEM Platform</div>
+                        <div class="spec-value">Wazuh 4.14</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Metrics Collection</div>
+                        <div class="spec-value">Prometheus 3.8.0</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Visualization</div>
+                        <div class="spec-value">Grafana 12.3.0</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Proxmox Integration</div>
+                        <div class="spec-value">PVE Exporter</div>
+                    </div>
+                </div>
+
+                <h3>Infrastructure Specifications</h3>
+                <p>For this deployment, we're using a single LXC container with the following specs:</p>
+
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">CPU Cores</div>
+                        <div class="spec-value">6 Cores</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">RAM</div>
+                        <div class="spec-value">16 GB</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">System Storage</div>
+                        <div class="spec-value">40 GB SSD</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Log Storage</div>
+                        <div class="spec-value">200 GB HDD (RAID 1)</div>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <p><strong>Storage Strategy:</strong> We're using a dual-volume approach with fast SSD storage for the system and applications, and slower but larger HDD storage for log retention. This balances performance with cost-effectiveness for long-term log storage.</p>
+                </div>
+
+                <h3>What You'll Get</h3>
+                <ul>
+                    <li><strong>Security Monitoring:</strong> Wazuh provides real-time threat detection, vulnerability assessment, and compliance monitoring</li>
+                    <li><strong>Performance Metrics:</strong> Prometheus collects and stores time-series metrics from your entire infrastructure</li>
+                    <li><strong>Visual Dashboards:</strong> Grafana transforms raw metrics into beautiful, actionable visualizations</li>
+                    <li><strong>Proxmox Integration:</strong> Monitor your hypervisor, VMs, and containers from a single pane of glass</li>
+                </ul>
+
+                <div class="warning">
+                    <p><strong>Important:</strong> This guide deploys everything on a single LXC for simplicity. For production environments with high load, consider separating these services across multiple containers or VMs.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="wazuh">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Step 1: Deploy Wazuh SIEM
+                </h2>
+
+                <p>Wazuh is our security information and event management (SIEM) platform. It provides threat detection, integrity monitoring, incident response, and compliance capabilities.</p>
+
+                <h3>Installation</h3>
+                <p>The Wazuh installation is straightforward with their all-in-one installer:</p>
+
+                <pre><code>curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh
+sudo bash ./wazuh-install.sh -a</code></pre>
+
+                <div class="note">
+                    <p><strong>Installation Time:</strong> The installation process takes approximately 10-15 minutes depending on your system and network speed. The script will install Wazuh Manager, Filebeat, Wazuh Dashboard, and all dependencies.</p>
+                </div>
+
+                <h3>Change Default Password</h3>
+                <p>For security, immediately change the default admin password:</p>
+
+                <pre><code># Download the password tool
+curl -so wazuh-passwords-tool.sh https://packages.wazuh.com/4.7/wazuh-passwords-tool.sh
+
+# Set your new password
+bash wazuh-passwords-tool.sh -u admin -p YourSecurePassword
+
+# Restart the dashboard
+sudo service wazuh-dashboard restart</code></pre>
+
+                <h3>Secure Your Command History</h3>
+                <p>Since you just typed a password in plaintext, clean your command history:</p>
+
+                <pre><code># Clear current session history
+history -c
+
+# Clear persistent history
+cat /dev/null > ~/.bash_history</code></pre>
+
+                <div class="warning">
+                    <p><strong>Security Best Practice:</strong> Always clear command history after entering passwords or sensitive data in the terminal. Consider using a password manager instead of typing passwords directly.</p>
+                </div>
+
+                <h3>Access the Dashboard</h3>
+                <p>Once installation is complete, access the Wazuh dashboard at:</p>
+                <pre><code>https://your-lxc-ip:443</code></pre>
+
+                <p>Default credentials (before you change them):</p>
+                <ul>
+                    <li>Username: <code>admin</code></li>
+                    <li>Password: Generated during installation (displayed at the end)</li>
+                </ul>
+
+                <div class="info-box">
+                    <p><strong>First Login:</strong> You may see SSL certificate warnings in your browser. This is normal for self-signed certificates. You can safely proceed or configure proper SSL certificates later.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="prometheus">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    Step 2: Install Prometheus
+                </h2>
+
+                <p>Prometheus is our time-series database and monitoring system. It scrapes metrics from configured targets, stores them efficiently, and makes them available for querying.</p>
+
+                <h3>Automated Installation Script</h3>
+                <p>Save this script as <code>install-prometheus.sh</code> to automate the entire Prometheus installation:</p>
+
+                <pre><code>#!/bin/bash
+# Prometheus Installation Script
+# Automates installation of Prometheus 3.8.0 on Linux
+
+set -e  # Exit on any error
+
+PROMETHEUS_VERSION="3.8.0"
+PROMETHEUS_DIR="prometheus-${PROMETHEUS_VERSION}.linux-amd64"
+PROMETHEUS_TAR="${PROMETHEUS_DIR}.tar.gz"
+DOWNLOAD_URL="https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/${PROMETHEUS_TAR}"
+
+echo "=== Prometheus Installation Script ==="
+echo "Installing Prometheus v${PROMETHEUS_VERSION}"
+echo
+
+# Create working directory
+echo "[1/9] Creating working directory..."
+mkdir -p ~/prometheus
+cd ~/prometheus
+
+# Download Prometheus
+echo "[2/9] Downloading Prometheus..."
+wget -q --show-progress "$DOWNLOAD_URL"
+
+# Extract archive
+echo "[3/9] Extracting archive..."
+tar -xzf "$PROMETHEUS_TAR"
+
+# Create Prometheus directories
+echo "[4/9] Creating system directories..."
+sudo mkdir -p /etc/prometheus /var/lib/prometheus
+
+# Move binaries
+echo "[5/9] Installing binaries..."
+cd "$PROMETHEUS_DIR"
+sudo mv prometheus promtool /usr/local/bin/
+
+# Move configuration files
+echo "[6/9] Installing configuration files..."
+sudo mv prometheus.yml /etc/prometheus/prometheus.yml
+sudo mv consoles/ console_libraries/ /etc/prometheus/
+
+# Create Prometheus user
+echo "[7/9] Creating prometheus user..."
+sudo useradd -rs /bin/false prometheus 2>/dev/null || echo "User 'prometheus' already exists"
+
+# Set permissions
+echo "[8/9] Setting permissions..."
+sudo chown -R prometheus:prometheus /etc/prometheus /var/lib/prometheus
+
+# Create systemd service
+echo "[9/9] Creating systemd service..."
+sudo tee /etc/systemd/system/prometheus.service > /dev/null <<'EOF'
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus/ \
+  --web.console.templates=/etc/prometheus/consoles \
+  --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Reload systemd and start Prometheus
+echo
+echo "Reloading systemd and starting Prometheus..."
+sudo systemctl daemon-reload
+sudo systemctl enable prometheus
+sudo systemctl start prometheus
+
+# Check status
+echo
+echo "=== Installation Complete ==="
+echo
+prometheus --version
+echo
+sudo systemctl status prometheus --no-pager
+
+echo
+echo "Prometheus is now running!"
+echo "Access the web UI at: http://localhost:9090"
+echo
+echo "Useful commands:"
+echo "  - Check status: sudo systemctl status prometheus"
+echo "  - View logs: sudo journalctl -u prometheus -f"
+echo "  - Restart: sudo systemctl restart prometheus"</code></pre>
+
+                <h3>Run the Installation</h3>
+                <pre><code>chmod +x install-prometheus.sh
+./install-prometheus.sh</code></pre>
+
+                <h3>Verify Installation</h3>
+                <p>Check that Prometheus is running and accessible:</p>
+
+                <pre><code># Check service status
+sudo systemctl status prometheus
+
+# Test the web interface
+curl http://localhost:9090</code></pre>
+
+                <p>Open your browser and navigate to <code>http://your-lxc-ip:9090</code> to access the Prometheus web UI.</p>
+
+                <div class="note">
+                    <p><strong>Default Configuration:</strong> Prometheus starts with a basic configuration that monitors itself. We'll add more targets in the next steps.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="pve-exporter">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    Step 3: Deploy PVE Exporter
+                </h2>
+
+                <p>The Proxmox VE Exporter allows Prometheus to scrape metrics from your Proxmox host, including CPU, memory, storage, and VM statistics.</p>
+
+                <div class="warning">
+                    <p><strong>Prerequisites:</strong> Before installing the exporter, you must create a dedicated user on your Proxmox host with appropriate permissions.</p>
+                </div>
+
+                <h3>Create Proxmox API User</h3>
+                <p>On your Proxmox host (not the LXC container), run:</p>
+
+                <pre><code># Create the user
+pveum user add pve-exporter@pve -password YourSecurePassword
+
+# Grant read-only auditor permissions
+pveum acl modify / -user pve-exporter@pve -role PVEAuditor</code></pre>
+
+                <p>Remember to clear your command history after entering the password!</p>
+
+                <h3>PVE Exporter Installation Script</h3>
+                <p>Save this as <code>install-pve-exporter.sh</code> and customize the <code>PROXMOX_HOST</code> variable:</p>
+
+                <pre><code>#!/bin/bash
+# Proxmox PVE Exporter Installation Script
+# Installs prometheus-pve-exporter as a systemd service
+
+set -e  # Exit on any error
+
+PVE_EXPORTER_PORT="9221"
+CONFIG_DIR="/etc/prometheus"
+CONFIG_FILE="${CONFIG_DIR}/pve.yml"
+PROXMOX_HOST="192.168.1.253"  # Change this to your Proxmox IP
+
+echo "=== Proxmox PVE Exporter Installation Script ==="
+echo "Target Proxmox host: ${PROXMOX_HOST}"
+echo
+
+# Get credentials
+echo "Enter the password you set for pve-exporter@pve: "
+read -s PVE_PASSWORD
+echo
+
+# Install dependencies
+echo "[1/8] Installing Python and pip..."
+apt-get update
+apt-get install -y python3 python3-pip python3-venv curl
+
+# Create system user
+echo "[2/8] Creating prometheus system user..."
+if ! id -u prometheus &>/dev/null; then
+    useradd --system --no-create-home --shell /bin/false prometheus
+    echo "Created prometheus user"
+else
+    echo "User prometheus already exists"
+fi
+
+# Create virtual environment
+echo "[3/8] Setting up Python virtual environment..."
+mkdir -p /opt/prometheus-pve-exporter
+python3 -m venv /opt/prometheus-pve-exporter
+
+# Install exporter
+echo "[4/8] Installing prometheus-pve-exporter..."
+source /opt/prometheus-pve-exporter/bin/activate
+pip install --upgrade pip
+pip install prometheus-pve-exporter
+deactivate
+
+# Create config
+echo "[5/8] Creating configuration files..."
+mkdir -p "$CONFIG_DIR"
+
+cat > "$CONFIG_FILE" <<EOF
+default:
+  user: pve-exporter@pve
+  password: $PVE_PASSWORD
+  verify_ssl: false
+  target: https://${PROXMOX_HOST}:8006
+EOF
+
+chmod 600 "$CONFIG_FILE"
+chown prometheus:prometheus "$CONFIG_FILE"
+
+# Create systemd service
+echo "[6/8] Creating systemd service..."
+cat > /etc/systemd/system/prometheus-pve-exporter.service <<'EOF'
+[Unit]
+Description=Prometheus Exporter for Proxmox VE
+Documentation=https://github.com/prometheus-pve/prometheus-pve-exporter
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=prometheus
+Group=prometheus
+Restart=on-failure
+ExecStart=/opt/prometheus-pve-exporter/bin/pve_exporter --config.file /etc/prometheus/pve.yml
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Start service
+echo "[7/8] Starting prometheus-pve-exporter service..."
+systemctl daemon-reload
+systemctl enable prometheus-pve-exporter
+systemctl start prometheus-pve-exporter
+
+sleep 3
+
+# Verify
+echo
+echo "[8/8] Verifying installation..."
+systemctl status prometheus-pve-exporter --no-pager
+
+echo
+if curl -sf http://127.0.0.1:${PVE_EXPORTER_PORT}/pve | grep -q "pve_version_info"; then
+    echo "✓ Metrics endpoint is working!"
+    echo "✓ Successfully connected to Proxmox host"
+else
+    echo "✗ Warning: Could not fetch metrics"
+    echo "Check logs: journalctl -u prometheus-pve-exporter -n 50"
+fi
+
+echo
+echo "=== Installation Complete ==="
+echo "Test: curl http://localhost:${PVE_EXPORTER_PORT}/pve"</code></pre>
+
+                <h3>Run the Installation</h3>
+                <pre><code>chmod +x install-pve-exporter.sh
+./install-pve-exporter.sh</code></pre>
+
+                <h3>Configure Prometheus Scraping</h3>
+                <p>Edit <code>/etc/prometheus/prometheus.yml</code> and add this job configuration:</p>
+
+                <pre><code>scrape_configs:
+  # Existing configs...
+  
+  - job_name: 'pve'
+    static_configs:
+      - targets:
+          - 192.168.1.253  # Your Proxmox host IP
+    metrics_path: /pve
+    params:
+      module: [default]
+      cluster: ['1']
+      node: ['1']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9221  # PVE exporter address</code></pre>
+
+                <h3>Reload Prometheus</h3>
+                <pre><code>sudo systemctl reload prometheus</code></pre>
+
+                <div class="note">
+                    <p><strong>Verification:</strong> After a minute or two, check Prometheus targets at <code>http://your-lxc-ip:9090/targets</code> to ensure the PVE exporter is being scraped successfully.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="grafana">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    Step 4: Install Grafana
+                </h2>
+
+                <p>Grafana transforms our Prometheus metrics into beautiful, interactive dashboards. It's the visualization layer of our monitoring stack.</p>
+
+                <h3>Installation</h3>
+                <p>Install Grafana Enterprise edition (free for personal use):</p>
+
+                <pre><code># Install dependencies
+sudo apt-get install -y adduser libfontconfig1 musl
+
+# Download Grafana
+wget https://dl.grafana.com/grafana-enterprise/release/12.3.0/grafana-enterprise_12.3.0_19497075765_linux_amd64.deb
+
+# Install the package
+sudo dpkg -i grafana-enterprise_12.3.0_19497075765_linux_amd64.deb
+
+# Start and enable service
+sudo systemctl daemon-reload
+sudo systemctl enable grafana-server
+sudo systemctl start grafana-server</code></pre>
+
+                <h3>Verify Installation</h3>
+                <pre><code># Check service status
+sudo systemctl status grafana-server
+
+# Test the web interface
+curl http://localhost:3000</code></pre>
+
+                <h3>Initial Login</h3>
+                <p>Access Grafana at <code>http://your-lxc-ip:3000</code></p>
+
+                <p>Default credentials:</p>
+                <ul>
+                    <li>Username: <code>admin</code></li>
+                    <li>Password: <code>admin</code></li>
+                </ul>
+
+                <p>You'll be prompted to change the password on first login.</p>
+
+                <h3>Add Prometheus Data Source</h3>
+                <ol>
+                    <li>Click the gear icon (⚙️) in the left sidebar</li>
+                    <li>Select "Data Sources"</li>
+                    <li>Click "Add data source"</li>
+                    <li>Select "Prometheus"</li>
+                    <li>Set URL to: <code>http://localhost:9090</code></li>
+                    <li>Click "Save & Test"</li>
+                </ol>
+
+                <div class="note">
+                    <p><strong>Success:</strong> You should see a green "Data source is working" message. If not, verify that Prometheus is running on port 9090.</p>
+                </div>
+
+                <h3>Import Proxmox Dashboard</h3>
+                <p>Import a pre-built dashboard for Proxmox monitoring:</p>
+
+                <ol>
+                    <li>Click the "+" icon in the left sidebar</li>
+                    <li>Select "Import"</li>
+                    <li>Enter dashboard ID: <code>10347</code></li>
+                    <li>Click "Load"</li>
+                    <li>Select your Prometheus data source</li>
+                    <li>Click "Import"</li>
+                </ol>
+
+                <div class="info-box">
+                    <p><strong>Dashboard Source:</strong> This dashboard is community-maintained and available at <a href="https://grafana.com/grafana/dashboards/10347" target="_blank">Grafana Dashboard #10347</a>. It provides comprehensive Proxmox monitoring including cluster status, node resources, VM metrics, and storage utilization.</p>
+                </div>
+
+                <h3>Explore Your Metrics</h3>
+                <p>The imported dashboard should now display live metrics from your Proxmox host including:</p>
+                <ul>
+                    <li>CPU usage and load averages</li>
+                    <li>Memory utilization</li>
+                    <li>Storage capacity and I/O</li>
+                    <li>Network traffic</li>
+                    <li>VM and container status</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section" id="verification">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Verification & Next Steps
+                </h2>
+
+                <h3>Health Check Commands</h3>
+                <p>Verify all services are running correctly:</p>
+
+                <pre><code># Check Wazuh
+sudo systemctl status wazuh-manager
+sudo systemctl status wazuh-dashboard
+
+# Check Prometheus
+sudo systemctl status prometheus
+
+# Check PVE Exporter
+sudo systemctl status prometheus-pve-exporter
+curl http://localhost:9221/pve | head
+
+# Check Grafana
+sudo systemctl status grafana-server</code></pre>
+
+                <h3>Service URLs</h3>
+                <table>
+                    <tr>
+                        <th>Service</th>
+                        <th>URL</th>
+                        <th>Default Port</th>
+                    </tr>
+                    <tr>
+                        <td>Wazuh Dashboard</td>
+                        <td><code>https://your-lxc-ip</code></td>
+                        <td>443</td>
+                    </tr>
+                    <tr>
+                        <td>Prometheus</td>
+                        <td><code>http://your-lxc-ip:9090</code></td>
+                        <td>9090</td>
+                    </tr>
+                    <tr>
+                        <td>PVE Exporter</td>
+                        <td><code>http://your-lxc-ip:9221/pve</code></td>
+                        <td>9221</td>
+                    </tr>
+                    <tr>
+                        <td>Grafana</td>
+                        <td><code>http://your-lxc-ip:3000</code></td>
+                        <td>3000</td>
+                    </tr>
+                </table>
+
+                <h3>Deploy Wazuh Agents</h3>
+                <p>Now that your Watchtower is operational, deploy Wazuh agents to systems you want to monitor:</p>
+
+                <ol>
+                    <li>Log into Wazuh Dashboard</li>
+                    <li>Navigate to "Agents" → "Deploy new agent"</li>
+                    <li>Select your operating system</li>
+                    <li>Copy the installation command</li>
+                    <li>Run it on your target systems</li>
+                </ol>
+
+                <div class="note">
+                    <p><strong>Agent Architecture:</strong> Wazuh agents are lightweight processes that collect security data and send it to the Wazuh manager for analysis. Install them on servers, workstations, and any systems you want to monitor.</p>
+                </div>
+
+                <h3>Add More Exporters</h3>
+                <p>Expand your monitoring capabilities with additional Prometheus exporters:</p>
+
+                <ul>
+                    <li><strong>Node Exporter:</strong> System metrics (CPU, memory, disk, network) for Linux hosts</li>
+                    <li><strong>Windows Exporter:</strong> Metrics for Windows servers</li>
+                    <li><strong>Blackbox Exporter:</strong> Probe endpoints over HTTP, HTTPS, DNS, TCP, and ICMP</li>
+                    <li><strong>SNMP Exporter:</strong> Collect metrics from network devices</li>
+                </ul>
+
+                <h3>Enhance with Heimdall</h3>
+                <p>Consider deploying Heimdall as a centralized dashboard to organize all your services in one place:</p>
+
+                <pre><code># Heimdall provides a beautiful landing page with links to all your services
+# Perfect for managing multiple monitoring tools and infrastructure services</code></pre>
+
+                <div class="info-box">
+                    <p><strong>Architecture Tip:</strong> As your monitoring needs grow, consider separating components:
+                    <ul>
+                        <li>Wazuh on dedicated VM (resource intensive)</li>
+                        <li>Prometheus + Grafana on monitoring LXC</li>
+                        <li>Separate TimescaleDB for long-term metric storage</li>
+                    </ul>
+                    </p>
+                </div>
+
+                <h3>Maintenance Tips</h3>
+                <ul>
+                    <li>Regularly review Wazuh alerts and tune detection rules</li>
+                    <li>Set up alert notifications in Grafana for critical metrics</li>
+                    <li>Monitor disk usage on your log storage volume</li>
+                    <li>Keep services updated with security patches</li>
+                    <li>Create regular backups of your configuration files</li>
+                </ul>
+
+                <h3>Useful Resources</h3>
+                <ul>
+                    <li><a href="https://documentation.wazuh.com/" target="_blank">Wazuh Documentation</a></li>
+                    <li><a href="https://prometheus.io/docs/" target="_blank">Prometheus Documentation</a></li>
+                    <li><a href="https://grafana.com/docs/" target="_blank">Grafana Documentation</a></li>
+                    <li><a href="https://github.com/prometheus-pve/prometheus-pve-exporter" target="_blank">PVE Exporter GitHub</a></li>
+                </ul>
+
+                <div class="warning">
+                    <p><strong>Security Reminder:</strong> This guide prioritizes functionality and ease of setup. For production environments, implement proper SSL certificates, firewall rules, authentication mechanisms, and network segmentation.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Watchtower Monitoring Stack. Created Thursday, December 04, 2025</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Comprehensive monitoring for modern infrastructure</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(168, 85, 247, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    const offset = 120;
+                    const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
