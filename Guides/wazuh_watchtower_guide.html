@@ -8,6 +8,7 @@
     <meta name="description" content="Complete guide to deploying a comprehensive monitoring stack with Wazuh SIEM, Prometheus, and Grafana on Proxmox LXC.">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+  <style>
         html {
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -99,6 +100,10 @@
         }
 
         .logo {
+            position: fixed;
+            top: 1rem;
+            left: 1.5rem;
+            z-index: 1000;
             width: 180px;
             height: 80px;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -616,7 +621,7 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
+        </style>
 </head>
 <body>
     <div class="blob"></div>
