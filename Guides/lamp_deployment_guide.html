@@ -1,0 +1,1942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building a LAMP Stack - Linux + Apache + MySQL + PHP on Debian 12</title>
+    <link rel="icon" href="/Assets/bimi-logo.svg" type="image/svg+xml">
+    <meta name="description" content="Complete guide to deploying a production-ready LAMP stack with Apache, MySQL, and PHP on Debian 12.">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
+        :root {
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-dark: #7e22ce;
+            --bg-dark: #0b0014;
+            --text-light: #f2e9ff;
+            --text-muted: #b69cd9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-light);
+            background: var(--bg-dark);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .blob {
+            position: fixed;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            filter: blur(180px);
+            opacity: 0.5;
+            z-index: 0;
+            animation: moveBlobs 30s infinite ease-in-out alternate;
+        }
+
+        .blob:nth-child(1) {
+            background: radial-gradient(circle, #a855f7 0%, #7e22ce 100%);
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .blob:nth-child(2) {
+            background: radial-gradient(circle, #7e22ce 0%, #5b21b6 100%);
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 7s;
+        }
+
+        @keyframes moveBlobs {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            33% {
+                transform: translate(120px, -100px) scale(1.3) rotate(120deg);
+            }
+            66% {
+                transform: translate(-100px, 80px) scale(0.9) rotate(240deg);
+            }
+            100% {
+                transform: translate(50px, -50px) scale(1.1) rotate(360deg);
+            }
+        }
+
+        canvas#particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .logo {
+            position: fixed;
+            top: 1rem;
+            left: 1.5rem;
+            z-index: 1000;
+            width: 180px;
+            height: 80px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 5px 15px rgba(168, 85, 247, 0.3));
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logo:hover {
+            transform: scale(1.15) translateY(-8px) rotate(2deg);
+            filter: drop-shadow(0 8px 30px rgba(168, 85, 247, 0.6));
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            padding: 0.85rem 1.75rem;
+            backdrop-filter: blur(20px);
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        .back-btn:hover {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.4s;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-5px);
+        }
+
+        header {
+            position: relative;
+            text-align: center;
+            padding: 8rem 2rem 2rem;
+            z-index: 2;
+        }
+
+        .lamp-icon {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 2rem;
+            filter: drop-shadow(0 10px 40px rgba(168, 85, 247, 0.6));
+            animation: floatLamp 4s ease-in-out infinite;
+        }
+
+        @keyframes floatLamp {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-15px) rotate(2deg);
+            }
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, white 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulseGlow 5s infinite ease-in-out, fadeInDown 1s ease-out;
+            position: relative;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 35px rgba(168, 85, 247, 0.8));
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quick-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .nav-link {
+            background: rgba(168, 85, 247, 0.1);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 25px;
+            padding: 0.7rem 1.4rem;
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(168, 85, 247, 0.4);
+        }
+
+        main {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 8rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            animation: fadeInScale 0.8s ease-out both;
+            scroll-margin-top: 100px;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(168, 85, 247, 0.25);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(168, 85, 247, 0.3);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2 svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            stroke: var(--accent);
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+
+        h3 {
+            color: var(--accent-light);
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: var(--accent-light);
+            font-size: 1.1rem;
+            margin: 1.5rem 0 1rem;
+            font-weight: 600;
+        }
+
+        p, li {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        code {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-light);
+            display: block;
+            line-height: 1.6;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        ul li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+
+        ol li {
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        th {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .note {
+            background: rgba(168, 85, 247, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .note p {
+            margin: 0;
+        }
+
+        .warning {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .warning p {
+            margin: 0;
+            color: #fca5a5;
+        }
+
+        .info-box {
+            background: rgba(168, 85, 247, 0.08);
+            border-left: 4px solid var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--text-light);
+        }
+
+        .info-box a {
+            color: var(--accent-light);
+            text-decoration: underline;
+        }
+
+        .info-box a:hover {
+            color: var(--accent);
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .spec-item {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .spec-item:hover {
+            background: rgba(168, 85, 247, 0.12);
+            border-color: rgba(168, 85, 247, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .spec-label {
+            color: var(--accent-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-value {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            padding: 3rem 1rem;
+            border-top: 2px solid rgba(168, 85, 247, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .top-nav {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .lamp-icon {
+                width: 250px;
+                height: 250px;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            .quick-nav {
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .spec-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <canvas id="particles"></canvas>
+    
+    <a href="#top" class="logo">
+        <img src="https://boubekeur.net/Assets/logo.png" alt="Logo">
+    </a>
+
+    <div class="top-nav">
+        <a href="https://boubekeur.net/blog.html" class="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Home
+        </a>
+    </div>
+
+    <header>
+        <svg class="lamp-icon" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="lampGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#fb923c;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+                </linearGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+                <radialGradient id="bulbGlow">
+                    <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+                    <stop offset="70%" style="stop-color:#f59e0b;stop-opacity:0.6" />
+                    <stop offset="100%" style="stop-color:#f97316;stop-opacity:0" />
+                </radialGradient>
+            </defs>
+            
+            <!-- Base/Stand -->
+            <rect x="120" y="240" width="60" height="15" rx="3" fill="url(#lampGradient)" filter="url(#glow)"/>
+            <rect x="135" y="220" width="30" height="20" fill="#ea580c" filter="url(#glow)"/>
+            
+            <!-- Lamp Post -->
+            <rect x="140" y="90" width="20" height="130" fill="url(#lampGradient)" filter="url(#glow)"/>
+            
+            <!-- Lamp Shade -->
+            <path d="M 100 90 L 150 40 L 200 90 Z" fill="url(#lampGradient)" filter="url(#glow)"/>
+            <ellipse cx="150" cy="90" rx="50" ry="8" fill="#c2410c" opacity="0.6"/>
+            
+            <!-- Light Bulb -->
+            <circle cx="150" cy="55" r="20" fill="url(#bulbGlow)" filter="url(#glow)">
+                <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <ellipse cx="150" cy="70" rx="12" ry="8" fill="#fbbf24" opacity="0.7"/>
+            
+            <!-- Light Rays -->
+            <g opacity="0.6">
+                <line x1="150" y1="55" x2="80" y2="20" stroke="#fbbf24" stroke-width="2" filter="url(#glow)">
+                    <animate attributeName="opacity" values="0.3;0.7;0.3" dur="1.5s" repeatCount="indefinite"/>
+                </line>
+                <line x1="150" y1="55" x2="220" y2="20" stroke="#fbbf24" stroke-width="2" filter="url(#glow)">
+                    <animate attributeName="opacity" values="0.7;0.3;0.7" dur="1.5s" repeatCount="indefinite"/>
+                </line>
+                <line x1="150" y1="55" x2="60" y2="55" stroke="#fbbf24" stroke-width="2" filter="url(#glow)">
+                    <animate attributeName="opacity" values="0.5;0.9;0.5" dur="1.8s" repeatCount="indefinite"/>
+                </line>
+                <line x1="150" y1="55" x2="240" y2="55" stroke="#fbbf24" stroke-width="2" filter="url(#glow)">
+                    <animate attributeName="opacity" values="0.9;0.5;0.9" dur="1.8s" repeatCount="indefinite"/>
+                </line>
+            </g>
+            
+            <!-- Decorative Elements -->
+            <circle cx="150" cy="55" r="15" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4">
+                <animate attributeName="r" values="15;25;15" dur="2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/>
+            </circle>
+        </svg>
+
+        <h1>LAMP Stack</h1>
+        <p class="header-subtitle">Deploy Linux + Apache + MySQL + PHP on Debian 12</p>
+        
+        <nav class="quick-nav">
+            <a href="#overview" class="nav-link">Overview</a>
+            <a href="#preparation" class="nav-link">Preparation</a>
+            <a href="#apache" class="nav-link">Apache</a>
+            <a href="#mysql" class="nav-link">MySQL</a>
+            <a href="#php" class="nav-link">PHP</a>
+            <a href="#testing" class="nav-link">Testing</a>
+            <a href="#security" class="nav-link">Security</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="section" id="overview">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    What is LAMP?
+                </h2>
+
+                <p>LAMP is a powerful, time-tested open-source web development platform that powers millions of websites worldwide. The acronym represents four key components that work together to create dynamic, database-driven web applications.</p>
+
+                <h3>The Components</h3>
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">L - Linux</div>
+                        <div class="spec-value">Debian 12 (Bookworm)</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Stable, secure operating system</p>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">A - Apache</div>
+                        <div class="spec-value">Apache 2.4</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Industry-leading web server</p>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">M - MySQL</div>
+                        <div class="spec-value">MySQL 8.0 / MariaDB 10.11</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Robust database management</p>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">P - PHP</div>
+                        <div class="spec-value">PHP 8.2</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Dynamic content processing</p>
+                    </div>
+                </div>
+
+                <h3>Why LAMP?</h3>
+                <ul>
+                    <li><strong>Battle-Tested:</strong> Powers major platforms like WordPress, Drupal, and countless enterprise applications</li>
+                    <li><strong>Open Source:</strong> Completely free with strong community support and extensive documentation</li>
+                    <li><strong>Flexible:</strong> Suitable for everything from personal blogs to high-traffic e-commerce sites</li>
+                    <li><strong>Well-Supported:</strong> Extensive libraries, frameworks, and tools available</li>
+                    <li><strong>Performance:</strong> Optimized for speed with mature caching and optimization solutions</li>
+                </ul>
+
+                <h3>What You'll Build</h3>
+                <p>By the end of this guide, you'll have a fully functional web server capable of:</p>
+                <ul>
+                    <li>Serving static and dynamic web content via Apache</li>
+                    <li>Processing PHP scripts for dynamic page generation</li>
+                    <li>Managing data with MySQL/MariaDB databases</li>
+                    <li>Hosting multiple websites with virtual hosts</li>
+                    <li>Running popular CMS platforms like WordPress or Drupal</li>
+                </ul>
+
+                <div class="note">
+                    <p><strong>Perfect For:</strong> This stack is ideal for web developers, system administrators, and anyone looking to host their own web applications. Whether you're building a personal blog, development environment, or production server, LAMP provides a solid foundation.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="preparation">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    System Preparation
+                </h2>
+
+                <p>Before installing the LAMP stack components, we need to prepare the system and ensure it's up to date.</p>
+
+                <h3>Update System Packages</h3>
+                <p>First, update your package lists and upgrade existing packages:</p>
+
+                <pre><code># Update package lists
+sudo apt update
+
+# Upgrade installed packages
+sudo apt upgrade -y
+
+# Install essential tools
+sudo apt install -y curl wget git nano software-properties-common apt-transport-https ca-certificates</code></pre>
+
+                <div class="note">
+                    <p><strong>Best Practice:</strong> Always update your system before installing new software to ensure you get the latest security patches and bug fixes.</p>
+                </div>
+
+                <h3>Set System Hostname (Optional)</h3>
+                <p>If you're setting up a production server, configure a proper hostname:</p>
+
+                <pre><code># Set hostname
+sudo hostnamectl set-hostname lamp-server
+
+# Edit hosts file
+sudo nano /etc/hosts
+
+# Add this line (replace with your IP):
+# 192.168.1.100  lamp-server.local  lamp-server</code></pre>
+
+                <h3>Configure Firewall with iptables</h3>
+                <p>Set up iptables for robust network security:</p>
+
+                <pre><code># Install iptables-persistent to save rules
+sudo apt install -y iptables-persistent
+
+# Flush existing rules (clean slate)
+sudo iptables -F
+sudo iptables -X
+sudo iptables -Z
+
+# Set default policies
+sudo iptables -P INPUT DROP
+sudo iptables -P FORWARD DROP
+sudo iptables -P OUTPUT ACCEPT
+
+# Allow loopback interface
+sudo iptables -A INPUT -i lo -j ACCEPT
+
+# Allow established and related connections
+sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# Allow SSH (port 22) - CRITICAL: Don't skip this!
+sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+
+# Allow HTTP (port 80)
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+
+# Allow HTTPS (port 443)
+sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+
+# Allow ping (ICMP)
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+
+# Log dropped packets (optional, useful for debugging)
+sudo iptables -A INPUT -m limit --limit 5/min -j LOG --log-prefix "iptables-DROP: " --log-level 7
+
+# Save the rules
+sudo netfilter-persistent save
+
+# Verify rules
+sudo iptables -L -v -n</code></pre>
+
+                <div class="warning">
+                    <p><strong>Critical:</strong> Always configure SSH access (port 22) before setting the default INPUT policy to DROP, or you will lock yourself out of remote systems!</p>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>iptables Management:</strong> View rules: <code>sudo iptables -L -v -n</code> | Save rules: <code>sudo netfilter-persistent save</code> | Reload rules: <code>sudo netfilter-persistent reload</code></p>
+                </div>
+
+                <h3>Verify System Resources</h3>
+                <p>Ensure your system meets the minimum requirements:</p>
+
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">Minimum RAM</div>
+                        <div class="spec-value">1 GB</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Recommended RAM</div>
+                        <div class="spec-value">2+ GB</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Disk Space</div>
+                        <div class="spec-value">10+ GB free</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">CPU Cores</div>
+                        <div class="spec-value">1+ cores</div>
+                    </div>
+                </div>
+
+                <pre><code># Check available memory
+free -h
+
+# Check disk space
+df -h
+
+# Check CPU info
+lscpu</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="apache">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    Step 1: Install Apache Web Server
+                </h2>
+
+                <p>Apache HTTP Server is the most widely-used web server software. It's reliable, powerful, and highly configurable.</p>
+
+                <h3>Installation</h3>
+                <pre><code># Install Apache
+sudo apt install -y apache2
+
+# Start Apache service
+sudo systemctl start apache2
+
+# Enable Apache to start on boot
+sudo systemctl enable apache2
+
+# Check status
+sudo systemctl status apache2</code></pre>
+
+                <h3>Verify Installation</h3>
+                <p>Test that Apache is running correctly:</p>
+
+                <pre><code># Check Apache version
+apache2 -v
+
+# Test configuration syntax
+sudo apache2ctl configtest
+
+# Test from command line
+curl http://localhost</code></pre>
+
+                <p>Open your web browser and navigate to <code>http://your-server-ip</code>. You should see the Apache default page.</p>
+
+                <div class="note">
+                    <p><strong>Success Indicator:</strong> If you see the "Apache2 Debian Default Page" with the message "It works!", Apache is installed correctly and serving content.</p>
+                </div>
+
+                <h3>Important Apache Directories</h3>
+                <table>
+                    <tr>
+                        <th>Directory</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><code>/var/www/html/</code></td>
+                        <td>Default web root directory</td>
+                    </tr>
+                    <tr>
+                        <td><code>/etc/apache2/</code></td>
+                        <td>Apache configuration files</td>
+                    </tr>
+                    <tr>
+                        <td><code>/etc/apache2/sites-available/</code></td>
+                        <td>Virtual host configurations</td>
+                    </tr>
+                    <tr>
+                        <td><code>/etc/apache2/sites-enabled/</code></td>
+                        <td>Enabled virtual hosts (symlinks)</td>
+                    </tr>
+                    <tr>
+                        <td><code>/var/log/apache2/</code></td>
+                        <td>Apache log files</td>
+                    </tr>
+                </table>
+
+                <h3>Enable Essential Apache Modules</h3>
+                <p>Enable commonly used modules for enhanced functionality:</p>
+
+                <pre><code># Enable mod_rewrite (URL rewriting)
+sudo a2enmod rewrite
+
+# Enable mod_ssl (HTTPS support)
+sudo a2enmod ssl
+
+# Enable mod_headers (HTTP headers control)
+sudo a2enmod headers
+
+# Restart Apache to apply changes
+sudo systemctl restart apache2</code></pre>
+
+                <div class="info-box">
+                    <p><strong>Module Explanation:</strong> mod_rewrite is essential for clean URLs and many CMS platforms. mod_ssl enables HTTPS connections. mod_headers allows you to modify HTTP response headers for security and caching.</p>
+                </div>
+
+                <h3>Basic Apache Commands</h3>
+                <pre><code># Start Apache
+sudo systemctl start apache2
+
+# Stop Apache
+sudo systemctl stop apache2
+
+# Restart Apache (full restart)
+sudo systemctl restart apache2
+
+# Reload configuration (no downtime)
+sudo systemctl reload apache2
+
+# Check syntax of config files
+sudo apache2ctl configtest
+
+# View Apache status
+sudo systemctl status apache2</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="mysql">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                    </svg>
+                    Step 2: Install MySQL/MariaDB
+                </h2>
+
+                <p>MySQL is a powerful relational database management system. On Debian 12, you can choose between MySQL or MariaDB (a MySQL fork). We'll use MariaDB as it's the default in Debian repositories.</p>
+
+                <h3>Installation</h3>
+                <pre><code># Install MariaDB server and client
+sudo apt install -y mariadb-server mariadb-client
+
+# Start MariaDB service
+sudo systemctl start mariadb
+
+# Enable MariaDB to start on boot
+sudo systemctl enable mariadb
+
+# Check status
+sudo systemctl status mariadb</code></pre>
+
+                <div class="note">
+                    <p><strong>MySQL vs MariaDB:</strong> MariaDB is a drop-in replacement for MySQL, developed by MySQL's original creators. It's fully compatible with MySQL and offers better performance in many scenarios.</p>
+                </div>
+
+                <h3>Secure MySQL Installation</h3>
+                <p>Run the security script to improve MySQL security:</p>
+
+                <pre><code>sudo mysql_secure_installation</code></pre>
+
+                <p>Answer the prompts as follows:</p>
+                <ul>
+                    <li><strong>Enter current password for root:</strong> Press Enter (no password set yet)</li>
+                    <li><strong>Switch to unix_socket authentication:</strong> N (No)</li>
+                    <li><strong>Change the root password:</strong> Y (Yes) - Enter a strong password</li>
+                    <li><strong>Remove anonymous users:</strong> Y (Yes)</li>
+                    <li><strong>Disallow root login remotely:</strong> Y (Yes)</li>
+                    <li><strong>Remove test database:</strong> Y (Yes)</li>
+                    <li><strong>Reload privilege tables:</strong> Y (Yes)</li>
+                </ul>
+
+                <div class="warning">
+                    <p><strong>Security Critical:</strong> Always set a strong root password and remove anonymous users. Never allow root remote login in production environments.</p>
+                </div>
+
+                <h3>Verify Installation</h3>
+                <pre><code># Check MariaDB version
+mysql --version
+
+# Login to MySQL (as root)
+sudo mysql -u root -p
+
+# Once logged in, try these commands:
+SHOW DATABASES;
+SELECT VERSION();
+EXIT;</code></pre>
+
+                <h3>Create a Database and User</h3>
+                <p>Create a sample database and user for your applications:</p>
+
+                <pre><code># Login to MySQL
+sudo mysql -u root -p
+
+# Create a database
+CREATE DATABASE myapp_db;
+
+# Create a user with password
+CREATE USER 'myapp_user'@'localhost' IDENTIFIED BY 'secure_password';
+
+# Grant privileges
+GRANT ALL PRIVILEGES ON myapp_db.* TO 'myapp_user'@'localhost';
+
+# Flush privileges
+FLUSH PRIVILEGES;
+
+# Verify
+SHOW DATABASES;
+SELECT User, Host FROM mysql.user;
+
+# Exit
+EXIT;</code></pre>
+
+                <div class="info-box">
+                    <p><strong>Best Practice:</strong> Create separate database users for each application with only the privileges they need. Never use the root account for application connections.</p>
+                </div>
+
+                <h3>Basic MySQL Commands</h3>
+                <pre><code># Start MySQL
+sudo systemctl start mariadb
+
+# Stop MySQL
+sudo systemctl stop mariadb
+
+# Restart MySQL
+sudo systemctl restart mariadb
+
+# Check MySQL status
+sudo systemctl status mariadb
+
+# View MySQL logs
+sudo journalctl -u mariadb -n 50</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="php">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 18 22 12 16 6"/>
+                        <polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                    Step 3: Install PHP
+                </h2>
+
+                <p>PHP is the scripting language that processes your dynamic content. Debian 12 includes PHP 8.2, which offers significant performance improvements and modern features.</p>
+
+                <h3>Installation</h3>
+                <p>Install PHP along with essential modules:</p>
+
+                <pre><code># Install PHP and common extensions
+sudo apt install -y php php-cli php-fpm php-mysql php-curl php-gd php-mbstring php-xml php-xmlrpc php-zip php-intl
+
+# Restart Apache to load PHP module
+sudo systemctl restart apache2</code></pre>
+
+                <h3>PHP Extensions Explained</h3>
+                <table>
+                    <tr>
+                        <th>Extension</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><code>php-cli</code></td>
+                        <td>Command-line PHP interpreter</td>
+                    </tr>
+                    <tr>
+                        <td><code>php-mysql</code></td>
+                        <td>MySQL/MariaDB database connectivity</td>
+                    </tr>
+                    <tr>
+                        <td><code>php-curl</code></td>
+                        <td>HTTP requests and API calls</td>
+                    </tr>
+                    <tr>
+                        <td><code>php-gd</code></td>
+                        <td>Image processing and manipulation</td>
+                    </tr>
+                    <tr>
+                        <td><code>php-mbstring</code></td>
+                        <td>Multibyte string handling (internationalization)</td>
+                    </tr>
+                    <tr>
+                        <td><code>php-xml</code></td>
+                        <td>XML parsing and processing</td>
+                    </tr>
+                    <tr>
+                        <td><code>php-zip</code></td>
+                        <td>ZIP archive handling</td>
+                    </tr>
+                </table>
+
+                <h3>Verify PHP Installation</h3>
+                <pre><code># Check PHP version
+php -v
+
+# View loaded PHP modules
+php -m
+
+# Check PHP configuration
+php -i | grep "Configuration File"</code></pre>
+
+                <h3>Configure PHP</h3>
+                <p>Edit the PHP configuration file to optimize settings:</p>
+
+                <pre><code># Edit PHP configuration for Apache
+sudo nano /etc/php/8.2/apache2/php.ini</code></pre>
+
+                <p>Recommended changes for better performance and security:</p>
+
+                <pre><code># Find and modify these directives:
+
+# Maximum execution time for scripts (seconds)
+max_execution_time = 300
+
+# Maximum file upload size
+upload_max_filesize = 64M
+post_max_size = 64M
+
+# Memory limit per script
+memory_limit = 256M
+
+# Timezone (change to yours)
+date.timezone = Europe/Paris
+
+# Display errors (disable in production!)
+display_errors = Off
+log_errors = On
+error_log = /var/log/php_errors.log</code></pre>
+
+                <div class="warning">
+                    <p><strong>Production Security:</strong> Always set <code>display_errors = Off</code> in production environments. Displaying errors can expose sensitive information about your server configuration.</p>
+                </div>
+
+                <h3>Restart Apache</h3>
+                <p>After modifying PHP settings, restart Apache:</p>
+
+                <pre><code>sudo systemctl restart apache2</code></pre>
+
+                <h3>Check PHP Integration with Apache</h3>
+                <pre><code># Verify PHP module is loaded
+apache2ctl -M | grep php
+
+# Should show: php_module (shared)</code></pre>
+            </div>
+        </div>
+
+        <div class="section" id="testing">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Testing Your LAMP Stack
+                </h2>
+
+                <p>Now let's verify that all components are working together correctly.</p>
+
+                <h3>Test 1: PHP Info Page</h3>
+                <p>Create a PHP info page to verify PHP is processing correctly:</p>
+
+                <pre><code># Create PHP info file
+sudo nano /var/www/html/info.php</code></pre>
+
+                <p>Add this content:</p>
+
+                <pre><code>&lt;?php
+phpinfo();
+?&gt;</code></pre>
+
+                <p>Save and exit (Ctrl+X, Y, Enter), then visit <code>http://your-server-ip/info.php</code> in your browser.</p>
+
+                <div class="note">
+                    <p><strong>What to Look For:</strong> You should see a detailed page showing PHP version, loaded extensions, configuration settings, and environment variables. This confirms PHP is working with Apache.</p>
+                </div>
+
+                <div class="warning">
+                    <p><strong>Security:</strong> Delete this file after testing! It exposes sensitive server information.</p>
+                    <pre><code>sudo rm /var/www/html/info.php</code></pre>
+                </div>
+
+                <h3>Test 2: PHP-MySQL Connection</h3>
+                <p>Create a test script to verify PHP can connect to MySQL:</p>
+
+                <pre><code># Create test script
+sudo nano /var/www/html/dbtest.php</code></pre>
+
+                <p>Add this content (replace with your database credentials):</p>
+
+                <pre><code>&lt;?php
+// Database credentials
+$servername = "localhost";
+$username = "myapp_user";
+$password = "secure_password";
+$database = "myapp_db";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $database);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+echo "&lt;h1&gt;Success!&lt;/h1&gt;";
+echo "&lt;p&gt;Successfully connected to MySQL database: &lt;strong&gt;" . $database . "&lt;/strong&gt;&lt;/p&gt;";
+echo "&lt;p&gt;MySQL version: &lt;strong&gt;" . $conn->server_info . "&lt;/strong&gt;&lt;/p&gt;";
+
+$conn->close();
+?&gt;</code></pre>
+
+                <p>Visit <code>http://your-server-ip/dbtest.php</code>. You should see a success message with the database name and MySQL version.</p>
+
+                <div class="warning">
+                    <p><strong>Security:</strong> Delete this test file immediately after verification!</p>
+                    <pre><code>sudo rm /var/www/html/dbtest.php</code></pre>
+                </div>
+
+                <h3>Test 3: Create a Sample Application</h3>
+                <p>Create a simple web page that uses all three components:</p>
+
+                <pre><code># Create sample page
+sudo nano /var/www/html/index.php</code></pre>
+
+                <p>Add this content:</p>
+
+                <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;LAMP Stack - Running!&lt;/title&gt;
+    &lt;style&gt;
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; }
+        .info { background: rgba(255,255,255,0.2); padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .success { color: #4ade80; font-weight: bold; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="card"&gt;
+        &lt;h1&gt;🚀 LAMP Stack is Running!&lt;/h1&gt;
+        
+        &lt;div class="info"&gt;
+            &lt;h3&gt;Server Information&lt;/h3&gt;
+            &lt;p&gt;&lt;strong&gt;Server Software:&lt;/strong&gt; &lt;?php echo $_SERVER['SERVER_SOFTWARE']; ?&gt;&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;PHP Version:&lt;/strong&gt; &lt;?php echo phpversion(); ?&gt;&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Server Name:&lt;/strong&gt; &lt;?php echo $_SERVER['SERVER_NAME']; ?&gt;&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Server IP:&lt;/strong&gt; &lt;?php echo $_SERVER['SERVER_ADDR']; ?&gt;&lt;/p&gt;
+        &lt;/div&gt;
+        
+        &lt;div class="info"&gt;
+            &lt;h3&gt;System Status&lt;/h3&gt;
+            &lt;p class="success"&gt;✓ Linux: Debian 12 (Bookworm)&lt;/p&gt;
+            &lt;p class="success"&gt;✓ Apache: Running&lt;/p&gt;
+            &lt;p class="success"&gt;✓ MySQL/MariaDB: Running&lt;/p&gt;
+            &lt;p class="success"&gt;✓ PHP: &lt;?php echo phpversion(); ?&gt;&lt;/p&gt;
+        &lt;/div&gt;
+        
+        &lt;p style="margin-top: 30px; text-align: center; opacity: 0.8;"&gt;
+            Your LAMP stack is configured and ready for development!
+        &lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+                <p>Visit <code>http://your-server-ip/</code> to see your new landing page!</p>
+
+                <div class="note">
+                    <p><strong>Success!</strong> If you see the styled page with your server information, congratulations! Your LAMP stack is fully operational.</p>
+                </div>
+
+                <h3>Troubleshooting Common Issues</h3>
+                <table>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Solution</th>
+                    </tr>
+                    <tr>
+                        <td>PHP code shows as plain text</td>
+                        <td>Check Apache PHP module: <code>apache2ctl -M | grep php</code></td>
+                    </tr>
+                    <tr>
+                        <td>Cannot connect to database</td>
+                        <td>Verify MySQL is running: <code>sudo systemctl status mariadb</code></td>
+                    </tr>
+                    <tr>
+                        <td>Permission denied errors</td>
+                        <td>Check file ownership: <code>sudo chown -R www-data:www-data /var/www/html</code></td>
+                    </tr>
+                    <tr>
+                        <td>Changes don't appear</td>
+                        <td>Clear browser cache or restart Apache: <code>sudo systemctl restart apache2</code></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="section" id="security">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Security Hardening
+                </h2>
+
+                <p>Secure your LAMP stack against common vulnerabilities and attacks.</p>
+
+                <h3>1. Secure Apache</h3>
+                <pre><code># Hide Apache version information
+sudo nano /etc/apache2/conf-available/security.conf
+
+# Set these directives:
+ServerTokens Prod
+ServerSignature Off
+
+# Enable the security configuration
+sudo a2enconf security
+
+# Restart Apache
+sudo systemctl restart apache2</code></pre>
+
+                <h3>2. Disable Directory Listing</h3>
+                <pre><code># Edit Apache configuration
+sudo nano /etc/apache2/apache2.conf
+
+# Find the Directory section for /var/www/ and change:
+Options Indexes FollowSymLinks
+# to:
+Options -Indexes +FollowSymLinks
+
+# Restart Apache
+sudo systemctl restart apache2</code></pre>
+
+                <h3>3. Set Proper File Permissions</h3>
+                <pre><code># Set ownership to Apache user
+sudo chown -R www-data:www-data /var/www/html
+
+# Set directory permissions
+sudo find /var/www/html -type d -exec chmod 755 {} \;
+
+# Set file permissions
+sudo find /var/www/html -type f -exec chmod 644 {} \;</code></pre>
+
+                <div class="note">
+                    <p><strong>Permission Explained:</strong> 755 for directories (rwxr-xr-x) allows the owner to modify, while others can only read and execute. 644 for files (rw-r--r--) allows owner to write, others to only read.</p>
+                </div>
+
+                <h3>4. Enable HTTPS with Let's Encrypt</h3>
+                <p>Install Certbot for free SSL certificates:</p>
+
+                <pre><code># Install Certbot
+sudo apt install -y certbot python3-certbot-apache
+
+# Obtain and install certificate (replace with your domain)
+sudo certbot --apache -d yourdomain.com -d www.yourdomain.com
+
+# Test automatic renewal
+sudo certbot renew --dry-run</code></pre>
+
+                <h3>5. Configure PHP Security</h3>
+                <pre><code># Edit PHP configuration
+sudo nano /etc/php/8.2/apache2/php.ini
+
+# Add/modify these security settings:
+expose_php = Off
+disable_functions = exec,passthru,shell_exec,system,proc_open,popen
+allow_url_fopen = Off
+allow_url_include = Off
+sql.safe_mode = On
+
+# Restart Apache
+sudo systemctl restart apache2</code></pre>
+
+                <h3>6. Install Fail2Ban</h3>
+                <p>Protect against brute-force attacks:</p>
+
+                <pre><code># Install Fail2Ban
+sudo apt install -y fail2ban
+
+# Create local configuration
+sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+
+# Edit configuration
+sudo nano /etc/fail2ban/jail.local
+
+# Enable Apache protections (find and uncomment):
+[apache-auth]
+enabled = true
+
+[apache-badbots]
+enabled = true
+
+[apache-noscript]
+enabled = true
+
+[apache-overflows]
+enabled = true
+
+# Start Fail2Ban
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+
+# Check status
+sudo fail2ban-client status</code></pre>
+
+                <h3>7. Regular Updates</h3>
+                <p>Keep your system and packages updated:</p>
+
+                <pre><code># Update package lists and upgrade
+sudo apt update && sudo apt upgrade -y
+
+# Enable automatic security updates
+sudo apt install -y unattended-upgrades
+sudo dpkg-reconfigure -plow unattended-upgrades</code></pre>
+
+                <h3>8. Backup Strategy</h3>
+                <p>Create a simple backup script:</p>
+
+                <pre><code># Create backup directory
+sudo mkdir -p /var/backups/lamp
+
+# Create backup script
+sudo nano /usr/local/bin/lamp-backup.sh</code></pre>
+
+                <p>Add this content:</p>
+
+                <pre><code>#!/bin/bash
+# LAMP Stack Backup Script
+
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="/var/backups/lamp"
+
+# Backup web files
+tar -czf $BACKUP_DIR/www_$DATE.tar.gz /var/www/html
+
+# Backup all databases
+mysqldump --all-databases -u root -p > $BACKUP_DIR/databases_$DATE.sql
+
+# Keep only last 7 days of backups
+find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
+find $BACKUP_DIR -name "*.sql" -mtime +7 -delete
+
+echo "Backup completed: $DATE"</code></pre>
+
+                <pre><code># Make executable
+sudo chmod +x /usr/local/bin/lamp-backup.sh
+
+# Test the backup
+sudo /usr/local/bin/lamp-backup.sh
+
+# Add to crontab for daily backups at 2 AM
+sudo crontab -e
+# Add this line:
+0 2 * * * /usr/local/bin/lamp-backup.sh >> /var/log/lamp-backup.log 2>&1</code></pre>
+
+                <div class="warning">
+                    <p><strong>Backup Critical:</strong> Store backups on a separate disk or remote location. Local-only backups won't protect against hardware failure or ransomware.</p>
+                </div>
+
+                <h3>Security Checklist</h3>
+                <ul>
+                    <li>✓ iptables firewall configured with proper rules</li>
+                    <li>✓ Apache version information hidden</li>
+                    <li>✓ Directory listing disabled</li>
+                    <li>✓ Proper file permissions set</li>
+                    <li>✓ HTTPS/SSL certificate installed</li>
+                    <li>✓ PHP security settings configured</li>
+                    <li>✓ Fail2Ban installed and running</li>
+                    <li>✓ Automatic security updates enabled</li>
+                    <li>✓ Regular backups scheduled</li>
+                    <li>✓ Strong MySQL root password set</li>
+                    <li>✓ MySQL remote root login disabled</li>
+                    <li>✓ Test/demo files removed</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section" id="next-steps">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                    Next Steps & Resources
+                </h2>
+
+                <h3>Virtual Hosts (Multiple Websites)</h3>
+                <p>Configure Apache to host multiple websites on one server:</p>
+
+                <pre><code># Create directory for new site
+sudo mkdir -p /var/www/mysite.com/public_html
+
+# Set permissions
+sudo chown -R www-data:www-data /var/www/mysite.com
+sudo chmod -R 755 /var/www/mysite.com
+
+# Create virtual host configuration
+sudo nano /etc/apache2/sites-available/mysite.com.conf</code></pre>
+
+                <p>Add this configuration:</p>
+
+                <pre><code>&lt;VirtualHost *:80&gt;
+    ServerName mysite.com
+    ServerAlias www.mysite.com
+    ServerAdmin admin@mysite.com
+    
+    DocumentRoot /var/www/mysite.com/public_html
+    
+    &lt;Directory /var/www/mysite.com/public_html&gt;
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    &lt;/Directory&gt;
+    
+    ErrorLog ${APACHE_LOG_DIR}/mysite.com_error.log
+    CustomLog ${APACHE_LOG_DIR}/mysite.com_access.log combined
+&lt;/VirtualHost&gt;</code></pre>
+
+                <pre><code># Enable the site
+sudo a2ensite mysite.com.conf
+
+# Disable default site (optional)
+sudo a2dissite 000-default.conf
+
+# Test configuration
+sudo apache2ctl configtest
+
+# Reload Apache
+sudo systemctl reload apache2</code></pre>
+
+                <h3>Install Popular CMS Platforms</h3>
+                
+                <h4>WordPress</h4>
+                <pre><code># Download WordPress
+cd /tmp
+wget https://wordpress.org/latest.tar.gz
+tar -xzf latest.tar.gz
+sudo mv wordpress /var/www/html/
+
+# Set permissions
+sudo chown -R www-data:www-data /var/www/html/wordpress
+sudo chmod -R 755 /var/www/html/wordpress
+
+# Create database for WordPress
+sudo mysql -u root -p
+CREATE DATABASE wordpress_db;
+CREATE USER 'wp_user'@'localhost' IDENTIFIED BY 'secure_password';
+GRANT ALL PRIVILEGES ON wordpress_db.* TO 'wp_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+# Visit http://your-server-ip/wordpress to complete installation</code></pre>
+
+                <h4>phpMyAdmin (Optional)</h4>
+                <p>Install phpMyAdmin for easier database management:</p>
+
+                <pre><code># Install phpMyAdmin
+sudo apt install -y phpmyadmin
+
+# During installation:
+# - Select "apache2" (use spacebar to select)
+# - Configure database: Yes
+# - Enter MySQL root password
+# - Set phpMyAdmin password
+
+# Restart Apache
+sudo systemctl restart apache2
+
+# Access at: http://your-server-ip/phpmyadmin</code></pre>
+
+                <div class="warning">
+                    <p><strong>phpMyAdmin Security:</strong> For production servers, secure phpMyAdmin by changing its URL, enabling HTTPS, and restricting access by IP address.</p>
+                </div>
+
+                <h3>Performance Optimization</h3>
+                
+                <h4>Enable Apache MPM Event</h4>
+                <pre><code># Disable prefork MPM
+sudo a2dismod mpm_prefork
+
+# Enable event MPM and PHP-FPM
+sudo a2enmod mpm_event proxy_fcgi setenvif
+sudo a2enconf php8.2-fpm
+
+# Restart services
+sudo systemctl restart apache2 php8.2-fpm</code></pre>
+
+                <h4>Install and Configure OPcache</h4>
+                <pre><code># Install OPcache (should already be installed)
+sudo apt install -y php8.2-opcache
+
+# Configure OPcache
+sudo nano /etc/php/8.2/apache2/conf.d/10-opcache.ini
+
+# Add/modify:
+opcache.enable=1
+opcache.memory_consumption=256
+opcache.interned_strings_buffer=16
+opcache.max_accelerated_files=10000
+opcache.revalidate_freq=60
+
+# Restart Apache
+sudo systemctl restart apache2</code></pre>
+
+                <h4>Install Memcached</h4>
+                <pre><code># Install Memcached and PHP extension
+sudo apt install -y memcached php-memcached
+
+# Start and enable Memcached
+sudo systemctl enable memcached
+sudo systemctl start memcached
+
+# Restart Apache
+sudo systemctl restart apache2</code></pre>
+
+                <h3>Monitoring & Maintenance</h3>
+                
+                <h4>Check Service Status</h4>
+                <pre><code># View all services
+sudo systemctl status apache2 mariadb
+
+# Check resource usage
+htop
+# (install with: sudo apt install htop)
+
+# Monitor Apache connections
+sudo ss -tulpn | grep :80
+sudo ss -tulpn | grep :443
+
+# View Apache access logs
+sudo tail -f /var/log/apache2/access.log
+
+# View Apache error logs
+sudo tail -f /var/log/apache2/error.log
+
+# View MySQL logs
+sudo tail -f /var/log/mysql/error.log</code></pre>
+
+                <h4>Disk Space Management</h4>
+                <pre><code># Check disk usage
+df -h
+
+# Find large files
+sudo du -h /var/www | sort -rh | head -20
+
+# Clean old logs
+sudo journalctl --vacuum-time=7d
+
+# Rotate Apache logs
+sudo logrotate -f /etc/logrotate.conf</code></pre>
+
+                <h3>Useful Commands Reference</h3>
+                <table>
+                    <tr>
+                        <th>Task</th>
+                        <th>Command</th>
+                    </tr>
+                    <tr>
+                        <td>Restart all services</td>
+                        <td><code>sudo systemctl restart apache2 mariadb</code></td>
+                    </tr>
+                    <tr>
+                        <td>Check Apache syntax</td>
+                        <td><code>sudo apache2ctl configtest</code></td>
+                    </tr>
+                    <tr>
+                        <td>List enabled modules</td>
+                        <td><code>apache2ctl -M</code></td>
+                    </tr>
+                    <tr>
+                        <td>List enabled sites</td>
+                        <td><code>ls /etc/apache2/sites-enabled/</code></td>
+                    </tr>
+                    <tr>
+                        <td>MySQL root login</td>
+                        <td><code>sudo mysql -u root -p</code></td>
+                    </tr>
+                    <tr>
+                        <td>Check PHP version</td>
+                        <td><code>php -v</code></td>
+                    </tr>
+                    <tr>
+                        <td>List PHP modules</td>
+                        <td><code>php -m</code></td>
+                    </tr>
+                    <tr>
+                        <td>View system logs</td>
+                        <td><code>sudo journalctl -xe</code></td>
+                    </tr>
+                </table>
+
+                <h3>Additional Resources</h3>
+                <ul>
+                    <li><strong>Apache Documentation:</strong> <a href="https://httpd.apache.org/docs/2.4/" target="_blank">httpd.apache.org/docs</a></li>
+                    <li><strong>MySQL Documentation:</strong> <a href="https://dev.mysql.com/doc/" target="_blank">dev.mysql.com/doc</a></li>
+                    <li><strong>PHP Documentation:</strong> <a href="https://www.php.net/docs.php" target="_blank">php.net/docs</a></li>
+                    <li><strong>Debian Wiki:</strong> <a href="https://wiki.debian.org/" target="_blank">wiki.debian.org</a></li>
+                    <li><strong>Let's Encrypt:</strong> <a href="https://letsencrypt.org/getting-started/" target="_blank">letsencrypt.org</a></li>
+                </ul>
+
+                <h3>Troubleshooting Resources</h3>
+                <ul>
+                    <li>Apache logs: <code>/var/log/apache2/</code></li>
+                    <li>MySQL logs: <code>/var/log/mysql/</code></li>
+                    <li>PHP error log: <code>/var/log/php_errors.log</code> (if configured)</li>
+                    <li>System logs: <code>sudo journalctl -xe</code></li>
+                    <li>Service status: <code>sudo systemctl status [service]</code></li>
+                </ul>
+
+                <div class="info-box">
+                    <p><strong>Congratulations!</strong> You now have a fully functional, secure LAMP stack ready for development or production use. Start building your web applications, deploy your favorite CMS, or experiment with PHP frameworks like Laravel or Symfony.</p>
+                </div>
+
+                <h3>What's Next?</h3>
+                <ul>
+                    <li>Deploy your first web application or CMS</li>
+                    <li>Set up automated backups to remote storage</li>
+                    <li>Configure monitoring with tools like Netdata or Prometheus</li>
+                    <li>Implement advanced caching with Redis or Varnish</li>
+                    <li>Explore containerization with Docker for easier deployment</li>
+                    <li>Learn about load balancing for high-traffic sites</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 LAMP Stack Deployment Guide. Created December 2025</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Powering the web, one stack at a time</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(168, 85, 247, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    const offset = 120;
+                    const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
