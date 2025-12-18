@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform + Proxmox - Infrastructure as Code Setup Guide</title>
+    <link rel="icon" href="/Assets/bimi-logo.svg" type="image/svg+xml">
+    <meta name="description" content="Complete guide to setting up Terraform with Proxmox VE for infrastructure as code deployment.">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
+        :root {
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-dark: #7e22ce;
+            --terraform: #7B42BC;
+            --proxmox: #E57000;
+            --bg-dark: #0b0014;
+            --text-light: #f2e9ff;
+            --text-muted: #b69cd9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-light);
+            background: var(--bg-dark);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .blob {
+            position: fixed;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            filter: blur(180px);
+            opacity: 0.5;
+            z-index: 0;
+            animation: moveBlobs 30s infinite ease-in-out alternate;
+        }
+
+        .blob:nth-child(1) {
+            background: radial-gradient(circle, #a855f7 0%, #7e22ce 100%);
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .blob:nth-child(2) {
+            background: radial-gradient(circle, #7e22ce 0%, #5b21b6 100%);
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 7s;
+        }
+
+        @keyframes moveBlobs {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            33% {
+                transform: translate(120px, -100px) scale(1.3) rotate(120deg);
+            }
+            66% {
+                transform: translate(-100px, 80px) scale(0.9) rotate(240deg);
+            }
+            100% {
+                transform: translate(50px, -50px) scale(1.1) rotate(360deg);
+            }
+        }
+
+        canvas#particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .logo {
+            position: fixed;
+            top: 1rem;
+            left: 1.5rem;
+            z-index: 1000;
+            width: 180px;
+            height: 80px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 5px 15px rgba(168, 85, 247, 0.3));
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logo:hover {
+            transform: scale(1.15) translateY(-8px) rotate(2deg);
+            filter: drop-shadow(0 8px 30px rgba(168, 85, 247, 0.6));
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            padding: 0.85rem 1.75rem;
+            backdrop-filter: blur(20px);
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        .back-btn:hover {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.4s;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-5px);
+        }
+
+        header {
+            position: relative;
+            text-align: center;
+            padding: 8rem 2rem 2rem;
+            z-index: 2;
+        }
+        .logo-container {
+            width: 400px;
+            height: 350px;
+            margin: 0 auto 2rem;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .rotating-logos {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: flat;
+            animation: orbitLogos 20s infinite linear;
+        }
+
+        @keyframes orbitLogos {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .terraform-logo, .proxmox-logo {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            filter: drop-shadow(0 10px 40px rgba(168, 85, 247, 0.6));
+        }
+
+        .terraform-logo {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: float1 4s ease-in-out infinite, counterRotate 20s infinite linear;
+        }
+
+        .proxmox-logo {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: float2 4s ease-in-out infinite, counterRotate 20s infinite linear;
+        }
+
+        @keyframes counterRotate {
+            0% {
+                transform: translateX(-50%) rotate(0deg);
+            }
+            100% {
+                transform: translateX(-50%) rotate(-360deg);
+            }
+        }
+
+        @keyframes float1 {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateX(-50%) translateY(-15px) rotate(0deg);
+            }
+        }
+
+        @keyframes float2 {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateX(-50%) translateY(15px) rotate(0deg);
+            }
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--terraform) 0%, var(--accent-light) 50%, var(--proxmox) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulseGlow 5s infinite ease-in-out, fadeInDown 1s ease-out;
+            position: relative;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 35px rgba(168, 85, 247, 0.8));
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quick-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .nav-link {
+            background: rgba(168, 85, 247, 0.1);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 25px;
+            padding: 0.7rem 1.4rem;
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(168, 85, 247, 0.4);
+        }
+
+        main {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 8rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            animation: fadeInScale 0.8s ease-out both;
+            scroll-margin-top: 100px;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(168, 85, 247, 0.25);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(168, 85, 247, 0.3);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2 svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            stroke: var(--accent);
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+
+        h3 {
+            color: var(--accent-light);
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: var(--accent-light);
+            font-size: 1.1rem;
+            margin: 1.5rem 0 1rem;
+            font-weight: 600;
+        }
+
+        p, li {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        code {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-light);
+            display: block;
+            line-height: 1.6;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        ul li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+
+        ol li {
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        th {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .note {
+            background: rgba(168, 85, 247, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .note p {
+            margin: 0;
+        }
+
+        .warning {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .warning p {
+            margin: 0;
+            color: #fca5a5;
+        }
+
+        .info-box {
+            background: rgba(168, 85, 247, 0.08);
+            border-left: 4px solid var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--text-light);
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .spec-item {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .spec-item:hover {
+            background: rgba(168, 85, 247, 0.12);
+            border-color: rgba(168, 85, 247, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .spec-label {
+            color: var(--accent-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-value {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            padding: 3rem 1rem;
+            border-top: 2px solid rgba(168, 85, 247, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .top-nav {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .logo-container {
+                width: 300px;
+                height: 250px;
+            }
+
+            .terraform-logo, .proxmox-logo {
+                width: 120px;
+                height: 120px;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            .quick-nav {
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .spec-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <canvas id="particles"></canvas>
+    
+    <a href="#top" class="logo">
+        <img src="https://boubekeur.net/Assets/logo.png" alt="Logo">
+    </a>
+
+    <div class="top-nav">
+        <a href="https://boubekeur.net/blog.html" class="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Home
+        </a>
+    </div>
+
+    <header>
+        <div class="logo-container">
+            <div class="rotating-logos">
+                <svg class="terraform-logo" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="tfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#7B42BC;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#5C2D91;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path fill="url(#tfGrad)" d="M1 0v5.05l4.349 2.527V2.526L1 0zM10.175 5.344l-4.35-2.525v5.05l4.35 2.527V5.344zM10.651 10.396V5.344L15 2.819v5.05l-4.349 2.527zM10.174 16l-4.349-2.526v-5.05l4.349 2.525V16z"/>
+                </svg>
+                
+                <img class="proxmox-logo" src="https://avatars.githubusercontent.com/u/2678585?s=200&v=4" alt="Proxmox">
+            </div>
+        </div>
+
+        <h1>Terraform + Proxmox</h1>
+        <p class="header-subtitle">Infrastructure as Code for Virtualization</p>
+        
+        <nav class="quick-nav">
+            <a href="#overview" class="nav-link">Overview</a>
+            <a href="#proxmox-setup" class="nav-link">Proxmox Setup</a>
+            <a href="#template" class="nav-link">Template Creation</a>
+            <a href="#terraform" class="nav-link">Terraform Install</a>
+            <a href="#deployment" class="nav-link">First Deployment</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="section" id="overview">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    What is Terraform + Proxmox?
+                </h2>
+
+                <p>Terraform is an infrastructure as code (IaC) tool that enables you to define, provision, and manage infrastructure through declarative configuration files. When combined with Proxmox VE, you gain powerful automation capabilities for virtual machine deployment and management.</p>
+
+                <h3>Key Components</h3>
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">Terraform</div>
+                        <div class="spec-value">IaC Tool by HashiCorp</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Automates infrastructure provisioning</p>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Proxmox VE</div>
+                        <div class="spec-value">Open-Source Hypervisor</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Enterprise virtualization platform</p>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Provider</div>
+                        <div class="spec-value">BPG Proxmox Provider</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Terraform-Proxmox integration</p>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Cloud-Init</div>
+                        <div class="spec-value">VM Initialization</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Automated VM configuration</p>
+                    </div>
+                </div>
+
+                <h3>Why Use This Stack?</h3>
+                <ul>
+                    <li><strong>Infrastructure as Code:</strong> Define your entire infrastructure in version-controlled configuration files</li>
+                    <li><strong>Repeatability:</strong> Deploy identical environments consistently across development, staging, and production</li>
+                    <li><strong>Version Control:</strong> Track changes to infrastructure just like application code with Git</li>
+                    <li><strong>Scalability:</strong> Easily scale from one VM to hundreds with minimal configuration changes</li>
+                    <li><strong>Cost Efficient:</strong> Proxmox is open-source and free; Terraform has no licensing costs</li>
+                    <li><strong>Automation:</strong> Eliminate manual VM creation and configuration errors</li>
+                </ul>
+
+                <h3>What You'll Achieve</h3>
+                <p>By following this guide, you'll be able to:</p>
+                <ul>
+                    <li>Configure Proxmox VE with proper user permissions for Terraform</li>
+                    <li>Create reusable VM templates with cloud-init support</li>
+                    <li>Install and configure Terraform with the Proxmox provider</li>
+                    <li>Deploy virtual machines programmatically using declarative code</li>
+                    <li>Manage infrastructure lifecycle (create, modify, destroy) through code</li>
+                    <li>Implement best practices for infrastructure automation</li>
+                </ul>
+
+                <div class="note">
+                    <p><strong>Prerequisites:</strong> This guide assumes you have a working Proxmox VE installation (version 7.0+), basic Linux command-line knowledge, and access to the Proxmox web interface with root or administrative privileges.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="proxmox-setup">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Step 1: Configure Proxmox User & Permissions
+                </h2>
+
+                <p>First, we need to create a dedicated Terraform user in Proxmox with appropriate permissions. This follows the principle of least privilege and keeps your infrastructure secure.</p>
+
+                <h3>Understanding Proxmox Roles</h3>
+                <p>Proxmox uses a role-based access control (RBAC) system. We'll create a custom role called "Terraform" with specific privileges required for VM management.</p>
+
+                <h3>Create the Terraform Role</h3>
+                <p>SSH into your Proxmox server and execute the following command:</p>
+
+                <pre><code># Create Terraform role with required privileges
+pveum role add Terraform -privs "Datastore.AllocateSpace Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.PowerMgmt SDN.Use"
+
+# Create terraform user with a secure password
+pveum user add terraform@pve --password <your-secure-password>
+
+# Grant the Terraform role to the terraform user at root level
+pveum aclmod / -user terraform@pve -role Terraform</code></pre>
+
+                <h3>Privilege Breakdown</h3>
+                <table>
+                    <tr>
+                        <th>Privilege</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><code>Datastore.AllocateSpace</code></td>
+                        <td>Create and allocate disk space for VM storage</td>
+                    </tr>
+                    <tr>
+                        <td><code>VM.Allocate</code></td>
+                        <td>Create new virtual machines</td>
+                    </tr>
+                    <tr>
+                        <td><code>VM.Clone</code></td>
+                        <td>Clone VMs from templates</td>
+                    </tr>
+                    <tr>
+                        <td><code>VM.Config.*</code></td>
+                        <td>Modify VM configurations (CPU, memory, disk, network, cloud-init)</td>
+                    </tr>
+                    <tr>
+                        <td><code>VM.PowerMgmt</code></td>
+                        <td>Start, stop, and restart virtual machines</td>
+                    </tr>
+                    <tr>
+                        <td><code>Sys.Audit</code></td>
+                        <td>View system status and configuration</td>
+                    </tr>
+                </table>
+
+                <h3>Create API Token</h3>
+                <p>Now create an API token for the terraform user through the Proxmox web interface:</p>
+
+                <ol>
+                    <li>Log into the Proxmox web interface</li>
+                    <li>Navigate to <strong>Datacenter → Permissions → API Tokens</strong></li>
+                    <li>Click <strong>Add</strong> button</li>
+                    <li>Select <strong>User:</strong> <code>terraform@pve</code></li>
+                    <li>Enter <strong>Token ID:</strong> <code>terraform1</code> (or your preferred name)</li>
+                    <li><strong>Important:</strong> Uncheck "Privilege Separation" to use the user's permissions</li>
+                    <li>Click <strong>Add</strong></li>
+                    <li><strong>Critical:</strong> Copy the generated secret immediately - it will only be shown once!</li>
+                </ol>
+
+                <div class="warning">
+                    <p><strong>Save Your Token:</strong> The API token secret is only displayed once during creation. Save it securely - you'll need it for Terraform configuration. Format: <code>terraform@pve!terraform1=&lt;secret-uuid&gt;</code></p>
+                </div>
+
+                <h3>Verify User Configuration</h3>
+                <pre><code># List all users
+pveum user list
+
+# Check role permissions
+pveum role list
+
+# Verify ACL assignments
+pveum acl list</code></pre>
+
+                <div class="note">
+                    <p><strong>Security Best Practice:</strong> Using a dedicated service account with limited privileges is more secure than using root credentials. API tokens can be revoked without changing passwords, and their usage can be audited separately.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="template">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    Step 2: Create a Debian Cloud-Init Template
+                </h2>
+
+                <p>Templates in Proxmox are pre-configured VMs that can be cloned quickly. We'll create a Debian template with cloud-init support for automated configuration.</p>
+
+                <h3>What is Cloud-Init?</h3>
+                <p>Cloud-init is an industry-standard tool for cloud instance initialization. It handles the initial configuration of VMs including:</p>
+                <ul>
+                    <li>Setting hostname and network configuration</li>
+                    <li>Creating users and setting passwords/SSH keys</li>
+                    <li>Installing packages and running scripts</li>
+                    <li>Configuring timezone and locale</li>
+                </ul>
+
+                <h3>Create the Base VM</h3>
+                <p>First, create a new VM in Proxmox with these specifications:</p>
+
+                <ol>
+                    <li>Go to Proxmox web interface → Click <strong>Create VM</strong></li>
+                    <li><strong>General:</strong> VM ID: <code>101</code>, Name: <code>debian-12-template</code></li>
+                    <li><strong>OS:</strong> Select your Debian 12 ISO image</li>
+                    <li><strong>System:</strong> Keep defaults (QEMU Agent: enabled)</li>
+                    <li><strong>Disks:</strong> 10-20 GB is sufficient for a template</li>
+                    <li><strong>CPU:</strong> 1-2 cores</li>
+                    <li><strong>Memory:</strong> 1024-2048 MB</li>
+                    <li><strong>Network:</strong> Default bridge (vmbr0)</li>
+                    <li>Start the VM and install Debian 12</li>
+                </ol>
+
+                <div class="warning">
+                    <p><strong>Important:</strong> During Debian installation, set a strong root password. This will be the default password for all cloned VMs until you change it via cloud-init or manually.</p>
+                </div>
+
+                <h3>Install and Configure Cloud-Init</h3>
+                <p>After Debian installation completes, log into the VM and run these commands:</p>
+
+                <pre><code># Update the system
+apt update && apt upgrade -y
+
+# Install cloud-init
+apt install -y cloud-init
+
+# Create cloud-init configuration for Proxmox
+cat > /etc/cloud/cloud.cfg.d/99_pve.cfg << EOF
+datasource_list: [NoCloud, ConfigDrive]
+EOF</code></pre>
+
+                <h3>What Does This Configuration Do?</h3>
+                <p>The <code>99_pve.cfg</code> file tells cloud-init to look for configuration data from NoCloud and ConfigDrive sources - the methods Proxmox uses to pass configuration to VMs.</p>
+
+                <h3>Prepare Template for Cloning</h3>
+                <p>Remove unique identifiers so each cloned VM gets fresh ones:</p>
+
+                <pre><code># Remove machine-id (each VM needs a unique one)
+truncate -s 0 /etc/machine-id
+rm -f /var/lib/dbus/machine-id
+ln -s /etc/machine-id /var/lib/dbus/machine-id
+
+# Clean cloud-init data
+cloud-init clean
+
+# Remove SSH host keys (will be regenerated on first boot)
+rm -f /etc/ssh/ssh_host_*
+
+# Clean package cache
+apt clean
+
+# Shutdown the VM
+shutdown -h now</code></pre>
+
+                <div class="info-box">
+                    <p><strong>Why Remove These Files?</strong> Machine IDs and SSH host keys must be unique per VM. Removing them ensures each clone generates new ones automatically on first boot, preventing conflicts and security issues.</p>
+                </div>
+
+                <h3>Enable QEMU Guest Agent</h3>
+                <p>After the VM shuts down, enable the QEMU Guest Agent in Proxmox:</p>
+
+                <ol>
+                    <li>Select your VM (ID 101) in Proxmox</li>
+                    <li>Go to <strong>Options</strong></li>
+                    <li>Double-click <strong>QEMU Guest Agent</strong></li>
+                    <li>Check <strong>Use QEMU Guest Agent</strong></li>
+                    <li>Click <strong>OK</strong></li>
+                </ol>
+
+                <div class="note">
+                    <p><strong>QEMU Guest Agent Benefits:</strong> The guest agent allows Proxmox to communicate with the VM for better shutdown coordination, IP address detection, and other management tasks. It's essential for production use.</p>
+                </div>
+
+                <h3>Add Cloud-Init Drive</h3>
+                <p>Add the cloud-init drive to your VM:</p>
+
+                <ol>
+                    <li>Select your VM (ID 101)</li>
+                    <li>Go to <strong>Hardware</strong></li>
+                    <li>Click <strong>Add → CloudInit Drive</strong></li>
+                    <li>Select storage (usually <code>local-lvm</code>)</li>
+                    <li>Click <strong>Add</strong></li>
+                </ol>
+
+                <p>You should now see a new drive labeled "CloudInit Drive" in the hardware list.</p>
+
+                <h3>Convert to Template</h3>
+                <p>Now convert the VM to a template:</p>
+
+                <ol>
+                    <li>Right-click on your VM (ID 101)</li>
+                    <li>Select <strong>Convert to template</strong></li>
+                    <li>Confirm the conversion</li>
+                </ol>
+
+                <div class="warning">
+                    <p><strong>Note:</strong> Once converted to a template, the VM cannot be started directly. It can only be cloned to create new VMs. If you need to modify the template, clone it first, make changes, and convert the clone to a new template.</p>
+                </div>
+
+                <h3>Verification</h3>
+                <p>Your template should now show with a template icon in the Proxmox VM list. It's ready to be cloned by Terraform!</p>
+
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">Template ID</div>
+                        <div class="spec-value">101</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">OS</div>
+                        <div class="spec-value">Debian 12 (Bookworm)</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Cloud-Init</div>
+                        <div class="spec-value">✓ Enabled</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">QEMU Agent</div>
+                        <div class="spec-value">✓ Enabled</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="terraform">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    Step 3: Install Terraform
+                </h2>
+
+                <p>Deploy a container or VM to serve as your Terraform Command and Control (CAC) server. This will be your infrastructure management hub.</p>
+
+                <h3>Create Terraform CAC Container</h3>
+                <p>In Proxmox, create a Debian container or VM:</p>
+
+                <ol>
+                    <li>Create a Debian 12 container or VM</li>
+                    <li>Give it a descriptive name: <code>Terraform-CAC</code></li>
+                    <li>Allocate at least 1 GB RAM and 10 GB storage</li>
+                    <li>Configure network settings</li>
+                    <li>Start the container/VM</li>
+                </ol>
+
+                <h3>Install Terraform</h3>
+                <p>SSH into your Terraform CAC and follow the official HashiCorp installation guide:</p>
+
+                <pre><code># Update system
+apt update && apt upgrade -y
+
+# Install required packages
+apt install -y gnupg software-properties-common curl
+
+# Add HashiCorp GPG key
+curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+
+# Add HashiCorp repository
+apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+
+# Update package list
+apt update
+
+# Install Terraform
+apt install -y terraform</code></pre>
+
+                <h3>Verify Installation</h3>
+                <pre><code># Check Terraform version
+terraform -help
+
+# Expected output shows available commands</code></pre>
+
+                <p>You should see output similar to this:</p>
+
+                <pre><code>root@Terraform-CAC:~# terraform -help
+Usage: terraform [global options] &lt;subcommand&gt; [args]
+
+The available commands for execution are listed below.
+The primary workflow commands are given first, followed by
+less common or more advanced commands.
+
+Main commands:
+  init          Prepare your working directory for other commands
+  validate      Check whether the configuration is valid
+  plan          Show changes required by the current configuration
+  apply         Create or update infrastructure
+  destroy       Destroy previously-created infrastructure
+
+All other commands:
+  console       Try Terraform expressions at an interactive command prompt
+  fmt           Reformat your configuration in the standard style
+  force-unlock  Release a stuck lock on the current workspace
+  get           Install or upgrade remote Terraform modules
+  graph         Generate a Graphviz graph of the steps in an operation
+  import        Associate existing infrastructure with a Terraform resource
+  login         Obtain and save credentials for a remote host
+  logout        Remove locally-stored credentials for a remote host
+  metadata      Metadata related commands
+  output        Show output values from your root module
+  providers     Show the providers required for this configuration
+  refresh       Update the state to match remote systems
+  show          Show the current state or a saved plan
+  state         Advanced state management
+  taint         Mark a resource instance as not fully functional
+  test          Execute integration tests for Terraform modules
+  untaint       Remove the 'tainted' state from a resource instance
+  version       Show the current Terraform version
+  workspace     Workspace management</code></pre>
+
+                <h3>Understanding Terraform Providers</h3>
+                <p>Terraform providers are plugins that enable Terraform to interact with different platforms and services. For Proxmox, there are two popular providers:</p>
+
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">Telmate Provider</div>
+                        <div class="spec-value">Legacy Option</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Older, less maintained provider with basic functionality</p>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">BPG Provider</div>
+                        <div class="spec-value">Recommended ✓</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">Modern, actively maintained with full feature support</p>
+                    </div>
+                </div>
+
+                <h3>Why BPG Provider?</h3>
+                <ul>
+                    <li><strong>Active Development:</strong> Regular updates and bug fixes from the community</li>
+                    <li><strong>Feature Complete:</strong> Supports all modern Proxmox features including cloud-init, QEMU guest agent, and advanced networking</li>
+                    <li><strong>Better Documentation:</strong> Comprehensive examples and detailed parameter descriptions</li>
+                    <li><strong>Type Safety:</strong> Written in Go with proper type checking and validation</li>
+                    <li><strong>API Compatibility:</strong> Works with latest Proxmox API versions (7.0+, 8.0+)</li>
+                    <li><strong>Community Support:</strong> Active GitHub repository with responsive maintainers</li>
+                </ul>
+
+                <div class="note">
+                    <p><strong>Provider Choice:</strong> This guide uses the BPG provider (<code>bpg/proxmox</code>) as it's the most modern and well-supported option. Source: <code>registry.terraform.io/bpg/proxmox</code></p>
+                </div>
+
+                <h3>Optional: Setup VS Code Remote Development</h3>
+                <p>For a better development experience, connect VS Code to your Terraform CAC:</p>
+
+                <ol>
+                    <li>Install <strong>Remote - SSH</strong> extension in VS Code</li>
+                    <li>Ensure SSH is enabled on your Terraform CAC:
+                        <pre><code># Install OpenSSH server if not installed
+apt install -y openssh-server
+
+# Enable and start SSH service
+systemctl enable ssh
+systemctl start ssh</code></pre>
+                    </li>
+                    <li>In VS Code, press <kbd>F1</kbd> and type "Remote-SSH: Connect to Host"</li>
+                    <li>Enter: <code>root@&lt;terraform-cac-ip&gt;</code></li>
+                    <li>Enter your password when prompted</li>
+                    <li>VS Code will connect and you can edit files directly on the server</li>
+                </ol>
+
+                <div class="info-box">
+                    <p><strong>VS Code Benefits:</strong> Remote development provides syntax highlighting, IntelliSense for Terraform files, integrated terminal, and Git integration - making infrastructure management much easier.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="deployment">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Step 4: Your First Terraform Deployment
+                </h2>
+
+                <p>Now let's create your first infrastructure deployment using Terraform. We'll define VMs as code and deploy them automatically.</p>
+
+                <h3>Create Project Directory</h3>
+                <pre><code># Create project directory
+mkdir -p ~/terraform/proxmox-demo
+cd ~/terraform/proxmox-demo</code></pre>
+
+                <h3>Create Configuration Files</h3>
+                <p>Create the following Terraform configuration files in your project directory:</p>
+
+                <h4>1. providers.tf</h4>
+                <p>This file defines which Terraform providers to use and their configuration:</p>
+
+                <pre><code>terraform {
+  required_providers {
+    proxmox = {
+      source  = "bpg/proxmox"
+      version = ">=0.80.0"
+    }
+  }
+}
+
+provider "proxmox" {
+  endpoint  = var.proxmox_endpoint
+  api_token = var.proxmox_api_token
+  insecure  = true  # Set to false in production with valid SSL cert
+}</code></pre>
+
+                <div class="note">
+                    <p><strong>Insecure Mode:</strong> The <code>insecure = true</code> setting bypasses SSL certificate verification. In production, use valid SSL certificates and set this to <code>false</code>.</p>
+                </div>
+
+                <h4>2. variables.tf</h4>
+                <p>Define input variables for your configuration:</p>
+
+                <pre><code>variable "proxmox_endpoint" {
+  description = "Proxmox VE API endpoint"
+  type        = string
+  sensitive   = false
+}
+
+variable "proxmox_api_token" {
+  description = "Proxmox API token in format user@realm!tokenid=secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "node_name" {
+  description = "Proxmox node name"
+  type        = string
+  default     = "pve-1"
+}
+
+variable "vm_user" {
+  description = "VM username"
+  type        = string
+  sensitive   = false
+}
+
+variable "vm_password" {
+  description = "VM user password"
+  type        = string
+  sensitive   = true
+}</code></pre>
+
+                <h4>3. credentials.auto.tfvars</h4>
+                <p>Store your sensitive credentials (never commit this to Git!):</p>
+
+                <pre><code>proxmox_endpoint  = "https://[pve-ip]:[pve-port]/"
+proxmox_api_token = "terraform@pve!terraform=[redacted]"
+node_name         = "pve-1"
+vm_user           = "user"
+vm_password       = "password"</code></pre>
+
+                <div class="warning">
+                    <p><strong>Security Critical:</strong> Never commit <code>credentials.auto.tfvars</code> to version control! Add it to <code>.gitignore</code> immediately. Replace the example values with your actual Proxmox endpoint, API token, and desired credentials.</p>
+                </div>
+
+                <h4>4. main.tf</h4>
+                <p>Define your VM infrastructure:</p>
+
+                <pre><code># Define a Proxmox VM resource
+resource "proxmox_virtual_environment_vm" "vm" {
+  # The name of the VM as it appears in Proxmox
+  name      = "test-vm"
+  
+  # The Proxmox node where this VM will be created
+  node_name = var.node_name
+  
+  # Unique identifier for this VM (must be unique across cluster)
+  vm_id     = 201
+
+  # Clone configuration - creates VM from template
+  clone {
+    # The ID of the template VM to clone from
+    vm_id = 101
+    
+    # Full clone creates independent copy with own disk
+    # (false would create linked clone depending on template)
+    full  = true
+  }
+
+  # CPU configuration
+  cpu {
+    # Number of CPU cores allocated
+    cores = 1
+  }
+
+  # Memory configuration
+  memory {
+    # Amount of RAM in MB
+    dedicated = 1024
+  }
+
+  # Network interface configuration
+  network_device {
+    # Virtual bridge to connect to
+    bridge = "vmbr0"
+  }
+
+  # QEMU guest agent configuration
+  agent {
+    # Enable guest agent for better VM management
+    # (requires qemu-guest-agent installed in VM)
+    enabled = false
+  }
+
+  # Cloud-init configuration for VM initialization
+  initialization {
+    # Datastore where cloud-init config will be stored
+    datastore_id = "local-lvm"
+
+    # User account configuration
+    user_account {
+      # Username for the default user
+      username = var.vm_user
+      
+      # Password for the default user
+      password = var.vm_password
+    }
+
+    # IP configuration for the VM's network
+    ip_config {
+      ipv4 {
+        # Use DHCP to automatically assign IP
+        address = "dhcp"
+        
+        # For static IP, use this format instead:
+        # address = "192.168.1.100/24"
+        # gateway = "192.168.1.1"
+      }
+    }
+
+    # DNS configuration
+    dns {
+      # Domain name for this VM
+      domain  = "boubekeur.net"
+      
+      # DNS servers for name resolution
+      servers = ["8.8.8.8", "1.1.1.1"]
+    }
+  }
+}</code></pre>
+
+                <h3>Understanding the Configuration</h3>
+                <table>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>name</code></td>
+                        <td>Display name in Proxmox interface</td>
+                    </tr>
+                    <tr>
+                        <td><code>vm_id</code></td>
+                        <td>Unique numeric identifier (100-999999999)</td>
+                    </tr>
+                    <tr>
+                        <td><code>clone.vm_id</code></td>
+                        <td>Template ID to clone from (our template is 101)</td>
+                    </tr>
+                    <tr>
+                        <td><code>clone.full</code></td>
+                        <td>true = independent disk, false = linked to template</td>
+                    </tr>
+                    <tr>
+                        <td><code>initialization</code></td>
+                        <td>Cloud-init settings for automated VM setup</td>
+                    </tr>
+                </table>
+
+                <h3>Create .gitignore</h3>
+                <p>If using Git, create a <code>.gitignore</code> file to protect sensitive data:</p>
+
+                <pre><code># .gitignore
+*.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json</code></pre>
+
+                <h3>Initialize Terraform</h3>
+                <p>Initialize your Terraform project to download required providers:</p>
+
+                <pre><code># Initialize Terraform (downloads providers)
+terraform init</code></pre>
+
+                <p>You should see output indicating successful initialization:</p>
+
+                <pre><code>Initializing the backend...
+
+Initializing provider plugins...
+- Finding bpg/proxmox versions matching ">= 0.80.0"...
+- Installing bpg/proxmox v0.80.0...
+- Installed bpg/proxmox v0.80.0
+
+Terraform has been successfully initialized!</code></pre>
+
+                <h3>Validate Configuration</h3>
+                <pre><code># Check for syntax errors
+terraform validate
+
+# Format code properly
+terraform fmt
+
+# Preview changes without applying
+terraform plan</code></pre>
+
+                <div class="note">
+                    <p><strong>Terraform Plan:</strong> The <code>plan</code> command shows what Terraform will do without making actual changes. Always review the plan before applying!</p>
+                </div>
+
+                <h3>Deploy Your Infrastructure</h3>
+                <p>Apply your configuration to create the VM:</p>
+
+                <pre><code># Apply configuration (create infrastructure)
+terraform apply
+
+# Type 'yes' when prompted to confirm</code></pre>
+
+                <p>Terraform will show you the execution plan and ask for confirmation. Type <code>yes</code> to proceed.</p>
+
+                <h3>Success Indicators</h3>
+                <p>If successful, you'll see:</p>
+
+                <pre><code>Apply complete! Resources: 1 added, 0 changed, 0 destroyed.</code></pre>
+
+                <p>Check Proxmox web interface - you should see your new VM (ID 201, name "test-vm") running!</p>
+
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">VM Created</div>
+                        <div class="spec-value">✓ Success</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">VM ID</div>
+                        <div class="spec-value">201</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Status</div>
+                        <div class="spec-value">Running</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Source</div>
+                        <div class="spec-value">Template 101</div>
+                    </div>
+                </div>
+
+                <h3>Verify Your Deployment</h3>
+                <ol>
+                    <li>Open Proxmox web interface</li>
+                    <li>Navigate to your node (pve-1)</li>
+                    <li>Find VM 201 ("test-vm")</li>
+                    <li>Check that it's running</li>
+                    <li>Open the console to verify it booted correctly</li>
+                    <li>Log in with the credentials you specified in <code>credentials.auto.tfvars</code></li>
+                </ol>
+
+                <h3>Common Terraform Commands</h3>
+                <table>
+                    <tr>
+                        <th>Command</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><code>terraform init</code></td>
+                        <td>Initialize working directory, download providers</td>
+                    </tr>
+                    <tr>
+                        <td><code>terraform validate</code></td>
+                        <td>Check configuration syntax</td>
+                    </tr>
+                    <tr>
+                        <td><code>terraform plan</code></td>
+                        <td>Preview changes without applying</td>
+                    </tr>
+                    <tr>
+                        <td><code>terraform apply</code></td>
+                        <td>Create or update infrastructure</td>
+                    </tr>
+                    <tr>
+                        <td><code>terraform destroy</code></td>
+                        <td>Destroy all managed infrastructure</td>
+                    </tr>
+                    <tr>
+                        <td><code>terraform show</code></td>
+                        <td>Show current state</td>
+                    </tr>
+                    <tr>
+                        <td><code>terraform fmt</code></td>
+                        <td>Format configuration files</td>
+                    </tr>
+                </table>
+
+                <div class="info-box">
+                    <p><strong>Congratulations! 🎉</strong> You've successfully set up Terraform with Proxmox and deployed your first infrastructure as code. You can now scale this to deploy dozens or hundreds of VMs with consistent configuration!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="next-steps">
+            <div class="card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                    Next Steps & Advanced Usage
+                </h2>
+
+                <h3>Modify Your Infrastructure</h3>
+                <p>Try making changes to your <code>main.tf</code> file:</p>
+
+                <pre><code># Increase CPU cores
+cpu {
+  cores = 2
+}
+
+# Increase memory
+memory {
+  dedicated = 2048
+}
+
+# Add a second network interface
+network_device {
+  bridge = "vmbr1"
+}</code></pre>
+
+                <p>Then apply the changes:</p>
+                <pre><code>terraform plan   # Review changes
+terraform apply  # Apply changes</code></pre>
+
+                <h3>Deploy Multiple VMs</h3>
+                <p>Use Terraform's <code>count</code> parameter to deploy multiple VMs:</p>
+
+                <pre><code>resource "proxmox_virtual_environment_vm" "vm" {
+  count     = 3  # Deploy 3 VMs
+  name      = "web-server-${count.index + 1}"
+  vm_id     = 201 + count.index
+  node_name = var.node_name
+  
+  clone {
+    vm_id = 101
+    full  = true
+  }
+  
+  # ... rest of configuration ...
+}</code></pre>
+
+                <h3>Use Variables for Flexibility</h3>
+                <p>Make your configuration more reusable:</p>
+
+                <pre><code># In variables.tf
+variable "vm_count" {
+  description = "Number of VMs to deploy"
+  type        = number
+  default     = 1
+}
+
+variable "vm_cpu_cores" {
+  description = "Number of CPU cores per VM"
+  type        = number
+  default     = 1
+}
+
+# In main.tf
+resource "proxmox_virtual_environment_vm" "vm" {
+  count = var.vm_count
+  
+  cpu {
+    cores = var.vm_cpu_cores
+  }
+  # ... rest ...
+}</code></pre>
+
+                <h3>Organize with Modules</h3>
+                <p>Create reusable Terraform modules for common patterns:</p>
+
+                <pre><code># Directory structure
+terraform/
+├── modules/
+│   ├── web-server/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   └── database/
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+└── environments/
+    ├── dev/
+    ├── staging/
+    └── production/</code></pre>
+
+                <h3>State Management</h3>
+                <p>For team environments, use remote state storage:</p>
+
+                <pre><code># backend.tf
+terraform {
+  backend "s3" {
+    bucket = "my-terraform-state"
+    key    = "proxmox/terraform.tfstate"
+    region = "us-east-1"
+  }
+}</code></pre>
+
+                <h3>Destroy Infrastructure</h3>
+                <p>When you need to tear down resources:</p>
+
+                <pre><code># Destroy specific resource
+terraform destroy -target=proxmox_virtual_environment_vm.vm[0]
+
+# Destroy everything
+terraform destroy</code></pre>
+
+                <div class="warning">
+                    <p><strong>Caution:</strong> <code>terraform destroy</code> permanently deletes all managed infrastructure. Always double-check before confirming!</p>
+                </div>
+
+                <h3>Best Practices</h3>
+                <ul>
+                    <li><strong>Version Control:</strong> Store all <code>.tf</code> files in Git (except credentials)</li>
+                    <li><strong>State Locking:</strong> Use remote backends with locking for team collaboration</li>
+                    <li><strong>Naming Conventions:</strong> Use consistent naming for resources and variables</li>
+                    <li><strong>Documentation:</strong> Comment your code and maintain a README</li>
+                    <li><strong>Testing:</strong> Always run <code>terraform plan</code> before <code>apply</code></li>
+                    <li><strong>Modular Design:</strong> Break large configurations into reusable modules</li>
+                    <li><strong>Secrets Management:</strong> Use environment variables or secret management tools</li>
+                </ul>
+
+                <h3>Troubleshooting</h3>
+                <table>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Solution</th>
+                    </tr>
+                    <tr>
+                        <td>Provider download fails</td>
+                        <td>Check internet connection, try <code>terraform init -upgrade</code></td>
+                    </tr>
+                    <tr>
+                        <td>Authentication errors</td>
+                        <td>Verify API token in credentials.auto.tfvars</td>
+                    </tr>
+                    <tr>
+                        <td>Template not found</td>
+                        <td>Check template ID (101) exists and is converted to template</td>
+                    </tr>
+                    <tr>
+                        <td>VM ID conflicts</td>
+                        <td>Ensure vm_id is unique across all VMs</td>
+                    </tr>
+                    <tr>
+                        <td>Network issues</td>
+                        <td>Verify bridge name (vmbr0) exists in Proxmox</td>
+                    </tr>
+                </table>
+
+                <h3>Additional Resources</h3>
+                <ul>
+                    <li><strong>Terraform Documentation:</strong> <a href="https://developer.hashicorp.com/terraform/docs" target="_blank">developer.hashicorp.com/terraform/docs</a></li>
+                    <li><strong>BPG Proxmox Provider:</strong> <a href="https://registry.terraform.io/providers/bpg/proxmox/latest/docs" target="_blank">registry.terraform.io/providers/bpg/proxmox</a></li>
+                    <li><strong>Proxmox API:</strong> <a href="https://pve.proxmox.com/pve-docs/api-viewer/" target="_blank">pve.proxmox.com/pve-docs/api-viewer</a></li>
+                    <li><strong>Cloud-Init Docs:</strong> <a href="https://cloudinit.readthedocs.io/" target="_blank">cloudinit.readthedocs.io</a></li>
+                </ul>
+
+                <div class="note">
+                    <p><strong>Pro Tip:</strong> Join the Terraform and Proxmox communities on forums, Reddit, and Discord for support and to share your infrastructure designs!</p>
+                </div>
+
+                <h3>What's Next?</h3>
+                <ul>
+                    <li>Integrate Terraform with CI/CD pipelines (GitHub Actions, GitLab CI)</li>
+                    <li>Implement automated testing with Terratest</li>
+                    <li>Use Ansible or cloud-init for post-deployment configuration</li>
+                    <li>Set up monitoring and alerting for your infrastructure</li>
+                    <li>Explore Terraform Cloud for team collaboration</li>
+                    <li>Build golden images with Packer for faster deployments</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Mohend Boubekeur. All rights reserved. Created December 2025</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Infrastructure as Code for the Modern Age</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(168, 85, 247, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    const offset = 120;
+                    const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
